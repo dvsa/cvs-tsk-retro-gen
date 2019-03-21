@@ -35,7 +35,7 @@ custom:
     port: 7000
     directory: /tmp
   serverless-offline:
-    port: 3012
+    port: 3013
   dependency-invoke:
     storage: dependencies
     dependencies:

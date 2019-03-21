@@ -2,7 +2,7 @@ invoke:
   local:
     params:
       apiVersion: 2015-03-31
-      endpoint: http://localhost:3012
+      endpoint: http://localhost:3013
     functions:
       testResults:
           name: cvs-svc-test-results
