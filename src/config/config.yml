@@ -1,0 +1,20 @@
+invoke:
+  local:
+    params:
+      apiVersion: 2015-03-31
+      endpoint: http://localhost:3012
+    functions:
+      testResults:
+          name: cvs-svc-test-results
+          mock: tests/resources/test-results-200-response.json
+  remote:
+    params:
+      apiVersion: 2015-03-31
+    functions:
+      testResults:
+          name: test-results-${BRANCH}
+s3:
+  local:
+    endpoint: http://localhost:7000
+    s3ForcePathStyle: true
+  remote: {}
