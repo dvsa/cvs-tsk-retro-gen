@@ -49,13 +49,13 @@ class RetroGenerationService {
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).format("HH:mm:ss");
                     detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).format("HH:mm:ss");
                     detailsTemplate.vrm.value = testResult.vrm;
-                    detailsTemplate.chassisNumber.value = testResult.vin
-                    detailsTemplate.testType.value = testType.testCode
+                    detailsTemplate.chassisNumber.value = testResult.vin;
+                    detailsTemplate.testType.value = testType.testCode;
                     detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : "" ;
                     detailsTemplate.result.value = testType.testResult;
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
-                    detailsTemplate.preparerId.value = testResult.preparerId
+                    detailsTemplate.preparerId.value = testResult.preparerId;
                     detailsTemplate.failutreAdvisoryItemsQAIComments.value = testType.reasonForAbandoning;
 
                 }
@@ -123,9 +123,9 @@ class RetroGenerationService {
             reportSheet.getCell("G4").alignment = { wrapText: true };
             reportSheet.getCell("M16").alignment = { wrapText: true };
 
-            let cellsWithBorders = ["G13","G30","G31","G34","G35","M16"]
+            const cellsWithBorders = ["G13", "G30", "G31", "G34", "G35", "M16"];
 
-            this.addBorders(cellsWithBorders, reportSheet)
+            this.addBorders(cellsWithBorders, reportSheet);
 
 
             Object.values(atfReportTemplate.siteVisitDetails).forEach((cell: any) => {
@@ -153,7 +153,7 @@ class RetroGenerationService {
      * Adds styling to a given cell
      * @param cell - the cell to add style to
      */
-    private addBorders(cells: string[], reportSheet: Excel.Worksheet){
+    private addBorders(cells: string[], reportSheet: Excel.Worksheet) {
         cells.forEach((cell) => {
             reportSheet.getCell(cell).border = {
                 right: { style: "medium" },
@@ -161,10 +161,14 @@ class RetroGenerationService {
                 top: { style: "medium" },
                 bottom: { style: "medium" }
             };
-        })
-        return reportSheet
+        });
+        return reportSheet;
     }
 
+    /**
+     * Add Cell style
+     * @param cell
+     */
     private addCellStyle(cell: any) {
         cell.border = {
             right: { style: "medium" },
