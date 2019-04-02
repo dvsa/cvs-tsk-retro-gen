@@ -35,18 +35,6 @@ class S3BucketService {
             Metadata: metadata
         }).promise();
     }
-
-    /**
-     * Downloads a file from an S3 bucket
-     * @param bucketName - the name of the bucket
-     * @param fileName - the name of the file
-     */
-    public download(bucketName: string, fileName: string): Promise<PromiseResult<S3.Types.GetObjectOutput, AWSError>> {
-        return this.s3Client.getObject({
-            Bucket: bucketName,
-            Key: fileName,
-        }).promise();
-    }
 }
 
 export {S3BucketService};
