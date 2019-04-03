@@ -26,7 +26,7 @@ const retroGen: Handler = async (event: any, context?: Context, callback?: Callb
         const retroUploadPromise = retroService.generateRetroReport(visit)
         .then((generationServiceResponse: { fileName: string, fileBuffer: Buffer}) => {
 
-            return s3BucketService.upload(`cvs-retro-reports-${process.env.BRANCH}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer)
+            return s3BucketService.upload(`cvs-retro-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer)
             .then((result: any) => {
                 return result;
             });

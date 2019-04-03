@@ -15,7 +15,7 @@ class RetroGenerationService {
     }
 
     /**
-     * Generates the ATF report for a given activity
+     * Generates the Retrokey report for a given activity
      * @param activity - activity for which to generate the report
      */
     public generateRetroReport(activity: IActivity): Promise<any> {
@@ -25,7 +25,7 @@ class RetroGenerationService {
             toDateTime: activity.endTime,
             testStationPNumber: activity.testStationPNumber
         }).then((testResults: any) => {
-            // Fetch and populate the ATF template
+            // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
                 const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
@@ -63,7 +63,7 @@ class RetroGenerationService {
                 return template.workbook.xlsx.writeBuffer()
                 .then((buffer: Excel.Buffer) => {
                     return {
-                        fileName: `ATFReport_${moment(activity.startTime).format("DD-MM-YYYY")}_${moment(activity.startTime).format("HHmm")}_${activity.testStationPNumber}_${activity.testerName}.xlsx`,
+                        fileName: `RetrokeyReport_${moment(activity.startTime).format("DD-MM-YYYY")}_${moment(activity.startTime).format("HHmm")}_${activity.testStationPNumber}_${activity.testerName}.xlsx`,
                         fileBuffer: buffer
                     };
                 });
@@ -91,7 +91,7 @@ class RetroGenerationService {
             delete template.lastModifiedBy;
 
             // Map values
-            const atfReportTemplate: any = {
+            const RetrokeyReportTemplate: any = {
                 siteVisitDetails: {
                     assesor: reportSheet.getCell("C4"),
                     siteName: reportSheet.getCell("F4"),
@@ -128,15 +128,15 @@ class RetroGenerationService {
             this.addBorders(cellsWithBorders, reportSheet);
 
 
-            Object.values(atfReportTemplate.siteVisitDetails).forEach((cell: any) => {
+            Object.values(RetrokeyReportTemplate.siteVisitDetails).forEach((cell: any) => {
                 this.addCellStyle(cell);
             });
 
-            Object.values(atfReportTemplate.activityDetails).forEach((cell: any) => {
+            Object.values(RetrokeyReportTemplate.activityDetails).forEach((cell: any) => {
                 this.addCellStyle(cell);
             });
 
-            atfReportTemplate.activityDetails.forEach((detailsTemplate: any) => {
+            RetrokeyReportTemplate.activityDetails.forEach((detailsTemplate: any) => {
                 Object.values(detailsTemplate).forEach((cell: any) => {
                     this.addCellStyle(cell);
                 });
@@ -144,7 +144,7 @@ class RetroGenerationService {
 
             return {
                 workbook,
-                reportTemplate: atfReportTemplate
+                reportTemplate: RetrokeyReportTemplate
             };
         });
     }
