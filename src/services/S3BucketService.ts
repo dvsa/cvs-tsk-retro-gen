@@ -1,11 +1,10 @@
 import S3, {Metadata} from "aws-sdk/clients/s3";
-import {AWSError, config as AWSConfig} from "aws-sdk";
+import {config as AWSConfig} from "aws-sdk";
 import {Service} from "../models/injector/ServiceDecorator";
 import {Readable} from "stream";
 import {Configuration} from "../utils/Configuration";
 import {IS3Config} from "../models";
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
-import {PromiseResult} from "aws-sdk/lib/request";
 import SendData = ManagedUpload.SendData;
 
 
@@ -30,7 +29,7 @@ class S3BucketService {
     public upload(bucketName: string, fileName: string, content: Buffer|Uint8Array|Blob|string|Readable, metadata?: Metadata): Promise<SendData> {
         return this.s3Client.upload({
             Bucket: bucketName,
-            Key: fileName,
+            Key: `${process.env.BRANCH}/${fileName}`,
             Body: content,
             Metadata: metadata
         }).promise();
