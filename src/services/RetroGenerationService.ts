@@ -53,7 +53,7 @@ class RetroGenerationService {
                     detailsTemplate.testType.value = testType.testCode;
                     detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : "" ;
                     detailsTemplate.result.value = testType.testResult;
-                    detailsTemplate.certificateNumber.value = testType.certificateNumber;
+                    detailsTemplate.certificateNumber.value = testType.testNumber;
                     detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
                     detailsTemplate.preparerId.value = testResult.preparerId;
                     detailsTemplate.failutreAdvisoryItemsQAIComments.value = testType.reasonForAbandoning;
