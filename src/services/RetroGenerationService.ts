@@ -44,6 +44,13 @@ class RetroGenerationService {
                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
                     const testResult: any = testResults[j];
                     const testType: any = testResult.testTypes;
+                    const additionalTestTypeNotes = testType.prohibitionIssued ? 'Prohibition was issued' : 'Prohibition was not issued'
+                    const prsString = testType.defects[i].prs ? 'PRS)' : 'NOT PRS'
+
+                    let defectsDetails = ''
+                    for(let i = 0; i < testType.defects.length; i++){
+                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ')'
+                    }
 
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).format("HH:mm:ss");
@@ -56,7 +63,7 @@ class RetroGenerationService {
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
                     detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = testType.reasonForAbandoning;
+                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = 'Defects: ' + defectsDetails + '; Reason for abandoning: ' + testType.reasonForAbandoning + '; Additional comments for abandon: ' + testType.additionalCommentsForAbandon + '; Additional test type notes: ' + additionalTestTypeNotes;
 
                 }
 
