@@ -45,7 +45,12 @@ class RetroGenerationService {
                     const testResult: any = testResults[j];
                     const testType: any = testResult.testTypes;
                     const additionalTestTypeNotes = testType.prohibitionIssued ? 'Prohibition was issued' : 'Prohibition was not issued'
-                    const prsString = testType.defects[i].prs ? 'PRS)' : 'NOT PRS'
+
+                    //TODO Refactor
+                    let prsString = 'PRS';
+                    try { if (testType.defects[i].prs === undefined) prsString = 'PRS';} catch (e) {
+                        prsString = 'NOT PRS';
+                    }
 
                     let defectsDetails = ''
                     for(let i = 0; i < testType.defects.length; i++){
@@ -63,7 +68,7 @@ class RetroGenerationService {
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
                     detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = `Defects: ${defectsDetails};\r\n Reason for abandoning: ${testType.reasonForAbandoning};\r\n Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n Additional test type notes: ${additionalTestTypeNotes}`;
+                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = `Defects: ${defectsDetails};\r\n Reason for abandoning: ${testType.reasonForAbandoning};\r\n Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n Additional test type notes: ${additionalTestTypeNotes} \r\n ${testType.additionalNotesRecorded}`;
 
                 }
 
