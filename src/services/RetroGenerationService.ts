@@ -54,7 +54,7 @@ class RetroGenerationService {
 
                     let defectsDetails = ''
                     for(let i = 0; i < testType.defects.length; i++){
-                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ')'
+                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ',' +testType.defects[i].notes + ')'
                     }
 
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
