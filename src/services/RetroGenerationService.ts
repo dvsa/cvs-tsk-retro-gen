@@ -63,7 +63,7 @@ class RetroGenerationService {
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
                     detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = 'Defects: ' + defectsDetails + '; Reason for abandoning: ' + testType.reasonForAbandoning + '; Additional comments for abandon: ' + testType.additionalCommentsForAbandon + '; Additional test type notes: ' + additionalTestTypeNotes;
+                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = `Defects: ${defectsDetails};\r\n Reason for abandoning: ${testType.reasonForAbandoning};\r\n Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n Additional test type notes: ${additionalTestTypeNotes}`;
 
                 }
 
