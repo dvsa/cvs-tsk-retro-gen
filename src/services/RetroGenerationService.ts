@@ -3,8 +3,8 @@ import * as Excel from "exceljs";
 import * as path from "path";
 import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
-import moment = require("moment");
-import {ActivityType} from "../models/enums";
+import moment = require("moment-timezone");
+import {ActivityType, TimeZone} from "../models/enums";
 
 @Service()
 class RetroGenerationService {
@@ -34,10 +34,10 @@ class RetroGenerationService {
                 siteVisitDetails.assesor.value = activity.testerName;
                 siteVisitDetails.siteName.value = activity.testStationName;
                 siteVisitDetails.siteNumber.value = activity.testStationPNumber;
-                siteVisitDetails.date.value = moment(activity.startTime).format("DD/MM/YYYY");
-                siteVisitDetails.startTime.value = moment(activity.startTime).format("HH:mm:ss");
-                siteVisitDetails.endTime.value = moment(activity.endTime).format("HH:mm:ss");
-                siteVisitDetails.endDate.value = moment(activity.endTime).format("DD/MM/YYYY");
+                siteVisitDetails.date.value = moment(activity.startTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+                siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
 
                 // Populate activity report
                 for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < testResults.length; i++, j++) {
@@ -58,15 +58,15 @@ class RetroGenerationService {
                     }
 
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                    detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).format("HH:mm:ss");
-                    detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).format("HH:mm:ss");
+                    detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                    detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.vrm.value = testResult.vrm;
                     detailsTemplate.chassisNumber.value = testResult.vin;
                     detailsTemplate.testType.value = testType.testCode;
                     detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : "" ;
                     detailsTemplate.result.value = testType.testResult;
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                    detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).format("DD/MM/YYYY");
+                    detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY");
                     detailsTemplate.preparerId.value = testResult.preparerId;
                     detailsTemplate.failutreAdvisoryItemsQAIComments.value = `Defects: ${defectsDetails};\r\n Reason for abandoning: ${testType.reasonForAbandoning};\r\n Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n Additional test type notes: ${additionalTestTypeNotes} \r\n ${testType.additionalNotesRecorded}`;
 
@@ -75,7 +75,7 @@ class RetroGenerationService {
                 return template.workbook.xlsx.writeBuffer()
                 .then((buffer: Excel.Buffer) => {
                     return {
-                        fileName: `RetrokeyReport_${moment(activity.startTime).format("DD-MM-YYYY")}_${moment(activity.startTime).format("HHmm")}_${activity.testStationPNumber}_${activity.testerName}.xlsx`,
+                        fileName: `RetrokeyReport_${moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY")}_${moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm")}_${activity.testStationPNumber}_${activity.testerName}.xlsx`,
                         fileBuffer: buffer
                     };
                 });
