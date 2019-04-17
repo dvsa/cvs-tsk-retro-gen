@@ -44,6 +44,7 @@
     "aws-sdk": "^2.392.0",
     "exceljs": "^1.7.0",
     "moment": "^2.24.0",
+    "moment-timezone": "^0.5.23",
     "node-yaml": "^3.1.1",
     "reflect-metadata": "^0.1.13"
   },
@@ -51,6 +52,7 @@
     "@types/aws-lambda": "^8.10.17",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
+    "@types/moment-timezone": "^0.5.12",
     "@types/node": "^10.12.18",
     "@types/request-promise": "^4.1.42",
     "chai": "^4.2.0",
