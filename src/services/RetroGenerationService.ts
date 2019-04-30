@@ -44,38 +44,53 @@ class RetroGenerationService {
                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
                     const testResult: any = testResults[j];
                     const testType: any = testResult.testTypes;
-                    const additionalTestTypeNotes = testType.prohibitionIssued ? 'Prohibition was issued' : 'Prohibition was not issued'
+                    const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "Prohibition was not issued";
+                    let defects: string = "";
+                    let reasonForAbandoning: string = "";
+                    let additionalCommentsAbandon: string = "";
+                    let defectsDetails: string = "";
+                    let prsString: string = "";
 
-                    //TODO Refactor
-                    let prsString = 'PRS';
-                    try { if (testType.defects[i].prs === undefined) prsString = 'PRS';} catch (e) {
-                        prsString = 'NOT PRS';
+                    for (const key of Object.keys(testType.defects)) {
+                        if (testType.defects[key].prs) {
+                            prsString = ", PRS";
+                        } else {
+                            prsString = "";
+                        }
+
+                        defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
+                                        testType.defects[key].deficiencyCategory + prsString +
+                                        (testType.defects[key].additionalInformation.notes ? (", " +
+                                        testType.defects[key].additionalInformation.notes) : "") + ")";
+
                     }
 
-                    let defectsDetails = ''
-                    for(let i = 0; i < testType.defects.length; i++){
-                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ',' +testType.defects[i].notes + ')'
-                    }
+                    if (defectsDetails) {defects = `Defects: ${defectsDetails};\r\n`; }
+                    if (testType.reasonForAbandoning) {reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`; }
+                    if (testType.additionalCommentsForAbandon) {additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`; }
 
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.vrm.value = testResult.vrm;
                     detailsTemplate.chassisNumber.value = testResult.vin;
-                    detailsTemplate.testType.value = testType.testCode;
+                    detailsTemplate.testType.value = (testType.testCode).toUpperCase();
                     detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : "" ;
                     detailsTemplate.result.value = testType.testResult;
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                    detailsTemplate.expiryDate.value = moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+                    detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                     detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failutreAdvisoryItemsQAIComments.value = `Defects: ${defectsDetails};\r\n Reason for abandoning: ${testType.reasonForAbandoning};\r\n Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n Additional test type notes: ${additionalTestTypeNotes} \r\n ${testType.additionalNotesRecorded}`;
+                    detailsTemplate.failureAdvisoryItemsQAIComments.value = defects + reasonForAbandoning + additionalCommentsAbandon + "Additional test type notes: " +
+                                                                            additionalTestTypeNotes + ";\r\n" + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
 
                 }
 
                 return template.workbook.xlsx.writeBuffer()
                 .then((buffer: Excel.Buffer) => {
                     return {
-                        fileName: `RetrokeyReport_${moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY")}_${moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm")}_${activity.testStationPNumber}_${activity.testerName}.xlsx`,
+                        fileName: "RetrokeyReport_" + moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY") + "_" +
+                                  moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm") + "_" + activity.testStationPNumber + "_" +
+                                  activity.testerName + ".xlsx",
                         fileBuffer: buffer
                     };
                 });
@@ -126,7 +141,7 @@ class RetroGenerationService {
                         certificateNumber: reportSheet.getCell(`J${17 + k}`),
                         expiryDate: reportSheet.getCell(`K${17 + k}`),
                         preparerId: reportSheet.getCell(`L${17 + k}`),
-                        failutreAdvisoryItemsQAIComments: reportSheet.getCell(`M${17 + k}`),
+                        failureAdvisoryItemsQAIComments: reportSheet.getCell(`M${17 + k}`),
                     };
                 })
 
