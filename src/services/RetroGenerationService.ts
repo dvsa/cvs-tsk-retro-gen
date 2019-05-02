@@ -46,15 +46,18 @@ class RetroGenerationService {
                     const testType: any = testResult.testTypes;
                     const additionalTestTypeNotes = testType.prohibitionIssued ? 'Prohibition was issued' : 'Prohibition was not issued'
 
-                    //TODO Refactor
-                    let prsString = 'PRS';
-                    try { if (testType.defects[i].prs === undefined) prsString = 'PRS';} catch (e) {
-                        prsString = 'NOT PRS';
+                    let prsString = ''
+                    if(testType.defects[i]) {
+                        if (!testType.defects[i].prs) {
+                            prsString = 'NOT PRS'
+                        } else {
+                            prsString = 'PRS'
+                        }
                     }
 
                     let defectsDetails = ''
                     for(let i = 0; i < testType.defects.length; i++){
-                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ',' +testType.defects[i].notes + ')'
+                        defectsDetails = defectsDetails + testType.defects[i].deficiencyRef + '(' + testType.defects[i].deficiencyCategory + ',' + prsString + ',' +testType.defects[i].additionalInformation.notes + ')'
                     }
 
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
