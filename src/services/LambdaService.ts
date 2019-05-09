@@ -3,7 +3,9 @@ import {Configuration} from "../utils/Configuration";
 import {AWSError, config as AWSConfig, Lambda} from "aws-sdk";
 import {Service} from "../models/injector/ServiceDecorator";
 import {PromiseResult} from "aws-sdk/lib/request";
-const AWSXRay = require('aws-xray-sdk');
+/* tslint:disable */
+const AWSXRay = require("aws-xray-sdk");
+/* tslint:enable */
 
 /**
  * Service class for invoking external lambda functions
