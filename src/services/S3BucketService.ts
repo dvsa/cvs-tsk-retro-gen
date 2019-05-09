@@ -6,6 +6,7 @@ import {Configuration} from "../utils/Configuration";
 import {IS3Config} from "../models";
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
+const AWSXRay = require('aws-xray-sdk');
 
 
 @Service()
@@ -14,7 +15,7 @@ class S3BucketService {
 
     constructor(s3Client: S3) {
         const config: IS3Config = Configuration.getInstance().getS3Config();
-        this.s3Client = s3Client;
+        this.s3Client = AWSXRay.captureAWSClient(s3Client);
 
         AWSConfig.s3 = config;
     }
