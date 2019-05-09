@@ -3,6 +3,7 @@ import {Configuration} from "../utils/Configuration";
 import {AWSError, config as AWSConfig, Lambda} from "aws-sdk";
 import {Service} from "../models/injector/ServiceDecorator";
 import {PromiseResult} from "aws-sdk/lib/request";
+const AWSXRay = require('aws-xray-sdk');
 
 /**
  * Service class for invoking external lambda functions
@@ -13,7 +14,7 @@ class LambdaService {
 
     constructor(lambdaClient: Lambda) {
         const config: IInvokeConfig = Configuration.getInstance().getInvokeConfig();
-        this.lambdaClient = lambdaClient;
+        this.lambdaClient = AWSXRay.captureAWSClient(lambdaClient);
 
         AWSConfig.lambda = config.params;
     }

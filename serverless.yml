@@ -8,7 +8,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-offline
   - serverless-dependency-invoke
-
+  - serverless-plugin-tracing
 
 functions:
   main:
