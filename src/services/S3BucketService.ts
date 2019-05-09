@@ -6,8 +6,9 @@ import {Configuration} from "../utils/Configuration";
 import {IS3Config} from "../models";
 import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
 import SendData = ManagedUpload.SendData;
-const AWSXRay = require('aws-xray-sdk');
-
+/* tslint:disable */
+const AWSXRay = require("aws-xray-sdk");
+/* tslint:enable */
 
 @Service()
 class S3BucketService {
