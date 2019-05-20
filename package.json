@@ -17,7 +17,7 @@
     "prepush": "npm test && npm run tslint",
     "sonar-scanner": "npm run tslint && npm run coverage && sonar-scanner",
     "coverage": "nyc mocha tests/unit/*.unitTest.ts && nyc report --reporter=lcov",
-    "audit-dep": "npm run audit"
+    "audit-dep": "npm audit"
   },
   "nyc": {
     "include": [
