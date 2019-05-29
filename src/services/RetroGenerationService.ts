@@ -39,6 +39,22 @@ class RetroGenerationService {
                 siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
                 siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
 
+                if (testResults.length > 11) {
+                    const worksheet = template.workbook.getWorksheet(1);
+                    for (let i = 39 + testResults.length - 11; i >= 27; i--) {
+                        const currentRow = worksheet.getRow(i);
+                        const rowToBeShifted = worksheet.getRow(i - 1);
+                        currentRow.values = rowToBeShifted.values;
+                        currentRow.height = rowToBeShifted.height;
+                        for (let j = 1; j < 17; j++) {
+                            const currentCell = currentRow.getCell(j);
+                            const cellToBeShifted = rowToBeShifted.getCell(j);
+                            currentCell.style = cellToBeShifted.style;
+                        }
+                        currentRow.commit();
+                    }
+                }
+
                 // Populate activity report
                 for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < testResults.length; i++, j++) {
                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
