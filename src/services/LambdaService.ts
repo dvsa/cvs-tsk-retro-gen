@@ -30,23 +30,36 @@ class LambdaService {
             .promise();
     }
 
+    public convertEmptyResponse(payload: any) {
+        payload.body = "[]";
+        payload.statusCode = 200;
+
+        return payload;
+    }
+
     /**
      * Validates the invocation response
      * @param response - the invocation response
      */
+
     public validateInvocationResponse(response: Lambda.Types.InvocationResponse): Promise<any> {
+        // @ts-ignore
         if (!response.Payload || response.Payload === "" || (response.StatusCode && response.StatusCode >= 400)) {
             throw new Error(`Lambda invocation returned error: ${response.StatusCode} with empty payload.`);
         }
 
-        const payload: any = JSON.parse(response.Payload as string);
+        let payload: any = JSON.parse(response.Payload as string);
 
-        if (payload.statusCode >= 400) {
+        if (payload.statusCode >= 400 && payload.statusCode !== 404) {
             throw new Error(`Lambda invocation returned error: ${payload.statusCode} ${payload.body}`);
         }
 
         if (!payload.body) {
             throw new Error(`Lambda invocation returned bad data: ${JSON.stringify(payload)}.`);
+        }
+
+        if (payload.statusCode === 404) {
+            payload = this.convertEmptyResponse(payload);
         }
 
         return payload;
