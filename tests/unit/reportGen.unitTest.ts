@@ -106,18 +106,19 @@ describe("report-gen", () => {
                     });
                 });
 
-                context("and the response is malformed", () => {
-                    it("should throw an error", () => {
-                        LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-malformed-response.json");
+                context("and the response is 200", () => {
+                    it("should return an empty test result", () => {
+                        LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-response-empty-body.json");
 
                         return testResultsService.getTestResults({})
-                        .then(() => {
-                            expect.fail();
-                        })
-                        .catch((error: Error) => {
-                            expect(error.message).to.contain("Lambda invocation returned bad data");
-                            expect(error).to.be.instanceOf(Error);
-                        });
+                            .then((result: any) => {
+                                const expectedResult: any = [];
+                                expect(result).to.eql(expectedResult);
+                            })
+                            .catch((error: Error) => {
+                                expect(error.message).to.contain("Lambda invocation returned bad data");
+                                expect(error).to.be.instanceOf(Error);
+                            });
                     });
                 });
             });
