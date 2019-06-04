@@ -168,6 +168,8 @@ class RetroGenerationService {
                     this.addCellStyle(cell);
                 });
             });
+            // CVSB-4842 fix
+            this.formatActivitiesRows(RetrokeyReportTemplate.activityDetails.length, reportSheet);
 
             return {
                 workbook,
@@ -205,6 +207,23 @@ class RetroGenerationService {
         };
 
         cell.alignment = { horizontal: "left" };
+    }
+
+    /**
+     * Format activities rows
+     * @param activitiesLen- number of Test activities to be formatted
+     * @param reportSheet- worksheet to modify
+     */
+    private formatActivitiesRows(activitiesLen: number, reportSheet: Excel.Worksheet) {
+        // Format activities rows
+        for ( let k = 0; k < activitiesLen; k++ ) {
+            // Activities Row starts from 17
+            const cell: any = reportSheet.getCell(`M${17 + k}`);
+            cell.alignment = { wrapText: true };
+            const row = reportSheet.getRow(17 + k);
+            // Setting the height to 0 which works as AutoFit here.
+            row.height = 0;
+        }
     }
 
 }
