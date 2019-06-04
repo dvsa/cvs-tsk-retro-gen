@@ -212,7 +212,7 @@ class RetroGenerationService {
     /**
      * Format activities rows
      * @param activitiesLen- number of Test activities to be formatted
-     * @param reportSheet- worksheet to modify
+     * @param reportSheet- worksheet to be modified
      */
     private formatActivitiesRows(activitiesLen: number, reportSheet: Excel.Worksheet) {
         // Format activities rows
