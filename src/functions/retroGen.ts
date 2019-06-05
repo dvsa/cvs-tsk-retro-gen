@@ -24,16 +24,16 @@ const retroGen: Handler = async (event: any, context?: Context, callback?: Callb
     event.Records.forEach((record: any) => {
         const visit: any = JSON.parse(record.body);
         const retroUploadPromise = retroService.generateRetroReport(visit)
-        .then((generationServiceResponse: { fileName: string, fileBuffer: Buffer}) => {
+            .then((generationServiceResponse: { fileName: string, fileBuffer: Buffer}) => {
 
-            return s3BucketService.upload(`cvs-retro-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer)
-            .then((result: any) => {
-                return result;
+                return s3BucketService.upload(`cvs-retro-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer)
+                    .then((result: any) => {
+                        return result;
+                    });
+            })
+            .catch((error: any) => {
+                console.log(error);
             });
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
 
         retroUploadPromises.push(retroUploadPromise);
     });

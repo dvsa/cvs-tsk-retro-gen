@@ -28,6 +28,35 @@ class RetroGenerationService {
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
+
+                if (testResults.length > 11) {
+                    const worksheet = template.workbook.getWorksheet(1);
+                    const numberOfRowsToBeAdded = testResults.length - 11;
+                    for (let i = 39 + numberOfRowsToBeAdded; i >= 28; i--) {
+                        const currentRow = worksheet.getRow(i);
+                        const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
+                        // currentRow.values = rowToBeShifted.values;
+                        // currentRow.height = rowToBeShifted.height;
+                        // currentRow.alignment = rowToBeShifted.alignment;
+                        currentRow.border = rowToBeShifted.border;
+                        // currentRow.outlineLevel = rowToBeShifted.outlineLevel;
+                        // currentRow.font = rowToBeShifted.font;
+                        // currentRow.fill = rowToBeShifted.fill;
+                        // currentRow.model = rowToBeShifted.model;
+                        for (let j = 1; j < 17; j++) {
+                            const currentCell = currentRow.getCell(j);
+                            const cellToBeShifted = rowToBeShifted.getCell(j);
+                            // currentCell.style = cellToBeShifted.style;
+                            // currentCell.border = cellToBeShifted.border;
+                            // currentCell.fill = cellToBeShifted.fill;
+                            // currentCell.font = cellToBeShifted.font;
+                            // currentCell.numFmt = cellToBeShifted.numFmt;
+                            // currentCell.alignment = cellToBeShifted.alignment;
+                            currentCell.value = cellToBeShifted.value;
+                        }
+                        currentRow.commit();
+                    }
+                }
                 const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
 
                 // Populate site visit details
@@ -38,22 +67,6 @@ class RetroGenerationService {
                 siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
                 siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
                 siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
-
-                if (testResults.length > 11) {
-                    const worksheet = template.workbook.getWorksheet(1);
-                    for (let i = 39 + testResults.length - 11; i >= 27; i--) {
-                        const currentRow = worksheet.getRow(i);
-                        const rowToBeShifted = worksheet.getRow(i - 1);
-                        currentRow.values = rowToBeShifted.values;
-                        currentRow.height = rowToBeShifted.height;
-                        for (let j = 1; j < 17; j++) {
-                            const currentCell = currentRow.getCell(j);
-                            const cellToBeShifted = rowToBeShifted.getCell(j);
-                            currentCell.style = cellToBeShifted.style;
-                        }
-                        currentRow.commit();
-                    }
-                }
 
                 // Populate activity report
                 for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < testResults.length; i++, j++) {
