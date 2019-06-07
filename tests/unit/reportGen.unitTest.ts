@@ -6,7 +6,8 @@ import * as path from "path";
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
 import {LambdaMockService} from "../models/LambdaMockService";
 import {TestResultsService} from "../../src/services/TestResultsService";
-import {IActivity} from "../../src/models";
+import {Configuration} from "../../src/utils/Configuration";
+import {IActivity, IS3Config} from "../../src/models";
 import * as Excel from "exceljs";
 import {Duplex} from "stream";
 
@@ -195,5 +196,36 @@ describe("report-gen", () => {
                 });
             });
         });
+    });
+
+    context("ConfigurationUtil", () => {
+        const config: Configuration = Configuration.getInstance();
+        const branch = process.env.BRANCH;
+        context("when calling the getS3Config() and the BRANCH environment variable is local", () => {
+            process.env.BRANCH = "local";
+            const s3config: IS3Config = config.getS3Config();
+            it("should return the local S3 config", () => {
+                expect (s3config.endpoint).to.equal("http://localhost:7000");
+            });
+        });
+
+        context("when calling the getS3Config() and the BRANCH environment variable is not defined", () => {
+            process.env.BRANCH = "";
+            const s3config: IS3Config = config.getS3Config();
+            it("should return the local S3 config", () => {
+                expect (s3config.endpoint).to.equal("http://localhost:7000");
+            });
+        });
+
+        context("when calling the getS3Config() and the BRANCH environment variable is different than local", () => {
+            process.env.BRANCH = "test";
+            const s3config: IS3Config = config.getS3Config();
+            it("should return the local S3 config", () => {
+                // tslint:disable-next-line:no-unused-expression
+                expect (s3config).to.be.empty;
+            });
+        });
+
+        process.env.BRANCH = branch;
     });
 });
