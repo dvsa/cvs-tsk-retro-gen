@@ -29,32 +29,10 @@ class RetroGenerationService {
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
 
+                const worksheet = template.workbook.getWorksheet(1);
                 if (testResults.length > 11) {
-                    const worksheet = template.workbook.getWorksheet(1);
-                    const numberOfRowsToBeAdded = testResults.length - 11;
-                    for (let i = 39 + numberOfRowsToBeAdded; i >= 28; i--) {
-                        const currentRow = worksheet.getRow(i);
-                        const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
-                        // currentRow.values = rowToBeShifted.values;
-                        currentRow.height = rowToBeShifted.height;
-                        // currentRow.alignment = rowToBeShifted.alignment;
-                        currentRow.border = rowToBeShifted.border;
-                        // currentRow.outlineLevel = rowToBeShifted.outlineLevel;
-                        // currentRow.font = rowToBeShifted.font;
-                        // currentRow.fill = rowToBeShifted.fill;
-                        for (let j = 1; j < 17; j++) {
-                            const currentCell = currentRow.getCell(j);
-                            const cellToBeShifted = rowToBeShifted.getCell(j);
-                            currentCell.style = cellToBeShifted.style;
-                            // currentCell.border = cellToBeShifted.border;
-                            // currentCell.fill = cellToBeShifted.fill;
-                            // currentCell.font = cellToBeShifted.font;
-                            // currentCell.numFmt = cellToBeShifted.numFmt;
-                            // currentCell.alignment = cellToBeShifted.alignment;
-                            currentCell.value = cellToBeShifted.value;
-                        }
-                        currentRow.commit();
-                    }
+                    this.adjustStaticTemplateForMoreThan11Tests(template, testResults);
+                    this.correctTemplateAfterAdjustment(template, testResults);
                 }
                 const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
 
@@ -125,6 +103,52 @@ class RetroGenerationService {
             });
         });
     }
+
+    private adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook, reportTemplate: any}, testResults: any) {
+        const worksheet = template.workbook.getWorksheet(1);
+        const numberOfRowsToBeAdded = testResults.length - 11;
+        for (let i = 39 + numberOfRowsToBeAdded; i >= 28; i--) {
+            const currentRow = worksheet.getRow(i);
+            const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
+            currentRow.height = rowToBeShifted.height;
+            currentRow.border = rowToBeShifted.border;
+            for (let j = 1; j < 17; j++) {
+                const currentCell = currentRow.getCell(j);
+                const cellToBeShifted = rowToBeShifted.getCell(j);
+                currentCell.style = cellToBeShifted.style;
+                currentCell.value = cellToBeShifted.value;
+            }
+            currentRow.commit();
+        }
+    }
+
+    private correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResults: any) {
+        const documentRequestHeaderCellIndex = 18 + testResults.length;
+        const worksheet = template.workbook.getWorksheet(1);
+        worksheet.getCell(`B${documentRequestHeaderCellIndex}`).value = "Document Requests";
+
+        const siteVisitDetailsWithBordersCellArray = ["B4", "B6", "B7", "E4", "E5", "E6", "E7"];
+        this.addBorders(siteVisitDetailsWithBordersCellArray, worksheet);
+
+        const activityDetailsWithBordersCellArray = this.constructTableCellArray(17, 17 + testResults.length - 1, "B", "M");
+        this.addBorders(activityDetailsWithBordersCellArray, worksheet);
+
+        const documentRequestWithBordersCellArray = this.constructTableCellArray(17 + testResults.length + 2, 17 + testResults.length + 3, "B", "G");
+        this.addBorders(documentRequestWithBordersCellArray, worksheet);
+
+        const healthySafetyIssuesWithBordersCellArray = this.constructTableCellArray(17 + testResults.length + 6, 17 + testResults.length + 7, "B", "G");
+        this.addBorders(healthySafetyIssuesWithBordersCellArray, worksheet);
+
+        worksheet.mergeCells(`B${testResults.length + 19}:C${testResults.length + 19}`);
+        worksheet.mergeCells(`B${testResults.length + 20}:C${testResults.length + 20}`);
+        worksheet.mergeCells(`B${testResults.length + 23}:C${testResults.length + 23}`);
+        worksheet.mergeCells(`B${testResults.length + 24}:C${testResults.length + 24}`);
+        worksheet.mergeCells(`E${testResults.length + 19}:G${testResults.length + 19}`);
+        worksheet.mergeCells(`E${testResults.length + 20}:G${testResults.length + 20}`);
+        worksheet.mergeCells(`E${testResults.length + 23}:G${testResults.length + 23}`);
+        worksheet.mergeCells(`E${testResults.length + 24}:G${testResults.length + 24}`);
+    }
+
 
     /**
      * Create a template of excel cell locations for inserting expected values in the correct place
@@ -220,6 +244,21 @@ class RetroGenerationService {
             };
         });
         return reportSheet;
+    }
+
+    private constructTableCellArray(startingLine: number, endingLine: number, startingColumn: string, endingColumn: string) {
+        const cellArray: any = [];
+        const startingColumnAlphIndex = startingColumn.charCodeAt(0) - 96;
+        const endingColumnAlphIndex = endingColumn.charCodeAt(0) - 96;
+
+        for (let i = startingLine; i <= endingLine; i++) {
+            for (let j = startingColumnAlphIndex; j <= endingColumnAlphIndex; j++) {
+                const cellLabel = String.fromCharCode(96 + j) + i ;
+                cellArray.push(cellLabel);
+            }
+        }
+
+        return cellArray;
     }
 
     /**
