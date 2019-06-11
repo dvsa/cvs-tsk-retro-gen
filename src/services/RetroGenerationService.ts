@@ -31,8 +31,8 @@ class RetroGenerationService {
 
                 const worksheet = template.workbook.getWorksheet(1);
                 if (testResults.length > 11) {
-                    this.adjustStaticTemplateForMoreThan11Tests(template, testResults);
-                    this.correctTemplateAfterAdjustment(template, testResults);
+                    this.adjustStaticTemplateForMoreThan11Tests(template, testResults.length);
+                    this.correctTemplateAfterAdjustment(template, testResults.length);
                 }
                 const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
 
