@@ -4,7 +4,7 @@ import * as path from "path";
 import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import moment = require("moment-timezone");
-import {ActivityType, TimeZone} from "../models/enums";
+import {ActivityType, TimeZone, RetroConstants} from "../models/enums";
 
 @Service()
 class RetroGenerationService {
@@ -104,15 +104,21 @@ class RetroGenerationService {
         });
     }
 
-    private adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook, reportTemplate: any}, testResults: any) {
+    /**
+     * Expands the activity details table with the number of rows needed to accommodate more than 11 tests(the initial capacity of the static template).
+     * This is achieved by iterating through the worksheet from bottom up to the first row after the activity details section and copying each row from position k - <number_of_rows_needed_to_be_inserted> to position k
+     * @param template - excel worksheet template which is manipulated
+     * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
+     */
+    private adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
         const worksheet = template.workbook.getWorksheet(1);
-        const numberOfRowsToBeAdded = testResults.length - 11;
-        for (let i = 39 + numberOfRowsToBeAdded; i >= 28; i--) {
+        const numberOfRowsToBeAdded = testResultsLength - RetroConstants.INITIAL_ACTIVITY_DETAILS_CAPACITY;
+        for (let i = RetroConstants.TEMPLATE_LAST_ROW + numberOfRowsToBeAdded; i >= RetroConstants.TEMPLATE_FIRST_ROW_AFTER_ACTIVITY_DETAILS; i--) {
             const currentRow = worksheet.getRow(i);
             const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
             currentRow.height = rowToBeShifted.height;
             currentRow.border = rowToBeShifted.border;
-            for (let j = 1; j < 17; j++) {
+            for (let j = RetroConstants.TEMPLATE_FIRST_COLUMN; j < RetroConstants.TEMPLATE_LAST_COLUMN; j++) {
                 const currentCell = currentRow.getCell(j);
                 const cellToBeShifted = rowToBeShifted.getCell(j);
                 currentCell.style = cellToBeShifted.style;
@@ -122,31 +128,38 @@ class RetroGenerationService {
         }
     }
 
-    private correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResults: any) {
-        const documentRequestHeaderCellIndex = 18 + testResults.length;
+    /**
+     * Used to manually correct the template after calling adjustStaticTemplateForMoreThan11Tests()
+     * Adds the missing borders(a good part of them are disappearing after adjustment). For this, the whole list of cells had to be computed in order for the library to correctly add the borders.
+     * Because no way of copying the merging model from cell to cell had been found, the static template needed to be adjusted by removing all the merges below activity details section, and adding them back programatically.
+     * @param template - excel worksheet template which is manipulated
+     * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
+     */
+    private correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
+        const documentRequestHeaderCellIndex = 18 + testResultsLength;
         const worksheet = template.workbook.getWorksheet(1);
         worksheet.getCell(`B${documentRequestHeaderCellIndex}`).value = "Document Requests";
 
         const siteVisitDetailsWithBordersCellArray = ["B4", "B6", "B7", "E4", "E5", "E6", "E7"];
         this.addBorders(siteVisitDetailsWithBordersCellArray, worksheet);
 
-        const activityDetailsWithBordersCellArray = this.constructTableCellArray(17, 17 + testResults.length - 1, "B", "M");
+        const activityDetailsWithBordersCellArray = this.constructTableCellArray(17, 17 + testResultsLength - 1, "B", "M");
         this.addBorders(activityDetailsWithBordersCellArray, worksheet);
 
-        const documentRequestWithBordersCellArray = this.constructTableCellArray(17 + testResults.length + 2, 17 + testResults.length + 3, "B", "G");
+        const documentRequestWithBordersCellArray = this.constructTableCellArray(17 + testResultsLength + 2, 17 + testResultsLength + 3, "B", "G");
         this.addBorders(documentRequestWithBordersCellArray, worksheet);
 
-        const healthySafetyIssuesWithBordersCellArray = this.constructTableCellArray(17 + testResults.length + 6, 17 + testResults.length + 7, "B", "G");
-        this.addBorders(healthySafetyIssuesWithBordersCellArray, worksheet);
+        const healthAndSafetyIssuesWithBordersCellArray = this.constructTableCellArray(17 + testResultsLength + 6, 17 + testResultsLength + 7, "B", "G");
+        this.addBorders(healthAndSafetyIssuesWithBordersCellArray, worksheet);
 
-        worksheet.mergeCells(`B${testResults.length + 19}:C${testResults.length + 19}`);
-        worksheet.mergeCells(`B${testResults.length + 20}:C${testResults.length + 20}`);
-        worksheet.mergeCells(`B${testResults.length + 23}:C${testResults.length + 23}`);
-        worksheet.mergeCells(`B${testResults.length + 24}:C${testResults.length + 24}`);
-        worksheet.mergeCells(`E${testResults.length + 19}:G${testResults.length + 19}`);
-        worksheet.mergeCells(`E${testResults.length + 20}:G${testResults.length + 20}`);
-        worksheet.mergeCells(`E${testResults.length + 23}:G${testResults.length + 23}`);
-        worksheet.mergeCells(`E${testResults.length + 24}:G${testResults.length + 24}`);
+        worksheet.mergeCells(`B${testResultsLength + 19}:C${testResultsLength + 19}`);
+        worksheet.mergeCells(`B${testResultsLength + 20}:C${testResultsLength + 20}`);
+        worksheet.mergeCells(`B${testResultsLength + 23}:C${testResultsLength + 23}`);
+        worksheet.mergeCells(`B${testResultsLength + 24}:C${testResultsLength + 24}`);
+        worksheet.mergeCells(`E${testResultsLength + 19}:G${testResultsLength + 19}`);
+        worksheet.mergeCells(`E${testResultsLength + 20}:G${testResultsLength + 20}`);
+        worksheet.mergeCells(`E${testResultsLength + 23}:G${testResultsLength + 23}`);
+        worksheet.mergeCells(`E${testResultsLength + 24}:G${testResultsLength + 24}`);
     }
 
 
