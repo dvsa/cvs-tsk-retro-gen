@@ -117,7 +117,6 @@ class RetroGenerationService {
             const currentRow = worksheet.getRow(i);
             const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
             currentRow.height = rowToBeShifted.height;
-            currentRow.border = rowToBeShifted.border;
             for (let j = RetroConstants.TEMPLATE_FIRST_COLUMN; j < RetroConstants.TEMPLATE_LAST_COLUMN; j++) {
                 const currentCell = currentRow.getCell(j);
                 const cellToBeShifted = rowToBeShifted.getCell(j);
@@ -136,30 +135,18 @@ class RetroGenerationService {
      * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
      */
     private correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
-        const documentRequestHeaderCellIndex = 18 + testResultsLength;
         const worksheet = template.workbook.getWorksheet(1);
-        worksheet.getCell(`B${documentRequestHeaderCellIndex}`).value = "Document Requests";
-
-        const siteVisitDetailsWithBordersCellArray = ["B4", "B6", "B7", "E4", "E5", "E6", "E7"];
-        this.addBorders(siteVisitDetailsWithBordersCellArray, worksheet);
-
-        const activityDetailsWithBordersCellArray = this.constructTableCellArray(17, 17 + testResultsLength - 1, "B", "M");
-        this.addBorders(activityDetailsWithBordersCellArray, worksheet);
-
-        const documentRequestWithBordersCellArray = this.constructTableCellArray(17 + testResultsLength + 2, 17 + testResultsLength + 3, "B", "G");
-        this.addBorders(documentRequestWithBordersCellArray, worksheet);
-
-        const healthAndSafetyIssuesWithBordersCellArray = this.constructTableCellArray(17 + testResultsLength + 6, 17 + testResultsLength + 7, "B", "G");
-        this.addBorders(healthAndSafetyIssuesWithBordersCellArray, worksheet);
 
         worksheet.mergeCells(`B${testResultsLength + 19}:C${testResultsLength + 19}`);
         worksheet.mergeCells(`B${testResultsLength + 20}:C${testResultsLength + 20}`);
-        worksheet.mergeCells(`B${testResultsLength + 23}:C${testResultsLength + 23}`);
-        worksheet.mergeCells(`B${testResultsLength + 24}:C${testResultsLength + 24}`);
         worksheet.mergeCells(`E${testResultsLength + 19}:G${testResultsLength + 19}`);
         worksheet.mergeCells(`E${testResultsLength + 20}:G${testResultsLength + 20}`);
-        worksheet.mergeCells(`E${testResultsLength + 23}:G${testResultsLength + 23}`);
-        worksheet.mergeCells(`E${testResultsLength + 24}:G${testResultsLength + 24}`);
+        worksheet.mergeCells(`F${testResultsLength + 23}:G${testResultsLength + 23}`);
+        worksheet.mergeCells(`F${testResultsLength + 24}:G${testResultsLength + 24}`);
+
+        const cellsWithBorders = ["G13", `G${testResultsLength + 19}`, `G${testResultsLength + 20}`, `G${testResultsLength + 23}`, `G${testResultsLength + 24}`];
+        this.addBorders(cellsWithBorders, worksheet);
+
     }
 
 
@@ -214,12 +201,6 @@ class RetroGenerationService {
 
             reportSheet.getCell("G4").alignment = { wrapText: true };
             reportSheet.getCell("M16").alignment = { wrapText: true };
-
-            const cellsWithBorders = ["G13", "G30", "G31", "G34", "G35", "M16"];
-
-            this.addBorders(cellsWithBorders, reportSheet);
-
-
             Object.values(RetrokeyReportTemplate.siteVisitDetails).forEach((cell: any) => {
                 this.addCellStyle(cell);
             });
@@ -228,11 +209,6 @@ class RetroGenerationService {
                 this.addCellStyle(cell);
             });
 
-            RetrokeyReportTemplate.activityDetails.forEach((detailsTemplate: any) => {
-                Object.values(detailsTemplate).forEach((cell: any) => {
-                    this.addCellStyle(cell);
-                });
-            });
             // CVSB-4842 fix
             this.formatActivitiesRows(RetrokeyReportTemplate.activityDetails.length, reportSheet);
 
@@ -257,21 +233,6 @@ class RetroGenerationService {
             };
         });
         return reportSheet;
-    }
-
-    private constructTableCellArray(startingLine: number, endingLine: number, startingColumn: string, endingColumn: string) {
-        const cellArray: any = [];
-        const startingColumnAlphIndex = startingColumn.charCodeAt(0) - 96;
-        const endingColumnAlphIndex = endingColumn.charCodeAt(0) - 96;
-
-        for (let i = startingLine; i <= endingLine; i++) {
-            for (let j = startingColumnAlphIndex; j <= endingColumnAlphIndex; j++) {
-                const cellLabel = String.fromCharCode(96 + j) + i ;
-                cellArray.push(cellLabel);
-            }
-        }
-
-        return cellArray;
     }
 
     /**
