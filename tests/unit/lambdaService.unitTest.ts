@@ -7,7 +7,7 @@ describe("When LambdaService ", () => {
     context("gets 404", () => {
         it("should return an empty 200", async () => {
             const service = new LambdaService(new Lambda());
-            const payload = await service.validateInvocationResponse({Payload: "{\"statusCode\": 404, \"body\": \"No resource match the selected criteria\"}", StatusCode: 200});
+            const payload = await service.validateInvocationResponse({Payload: {body: "it broke", statusCode: 404}});
             expect(payload.statusCode).to.be.eql(200);
             expect(payload.body).to.be.eql("[]");
         });
