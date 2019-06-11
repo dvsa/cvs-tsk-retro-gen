@@ -13,3 +13,18 @@ describe("When LambdaService ", () => {
         });
     });
 });
+
+
+describe("When LambdaService ", () => {
+    context("gets 503", () => {
+        it("should throw an error", async () => {
+            const service = new LambdaService(new Lambda());
+            try {
+                const payload = await service.validateInvocationResponse({Payload: "{\"statusCode\": 503, \"body\": \"Service unavailable\"}", StatusCode: 200});
+            } catch (e) {
+                expect(e.message).to.contain("Lambda invocation returned error");
+                expect(e).to.be.instanceOf(Error);
+            }
+        });
+    });
+});
