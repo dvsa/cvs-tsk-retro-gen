@@ -28,8 +28,6 @@ class RetroGenerationService {
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
-
-                const worksheet = template.workbook.getWorksheet(1);
                 if (testResults.length > 11) {
                     this.adjustStaticTemplateForMoreThan11Tests(template, testResults.length);
                     this.correctTemplateAfterAdjustment(template, testResults.length);
@@ -110,7 +108,7 @@ class RetroGenerationService {
      * @param template - excel worksheet template which is manipulated
      * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
      */
-    private adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
+    public adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
         const worksheet = template.workbook.getWorksheet(1);
         const numberOfRowsToBeAdded = testResultsLength - RetroConstants.INITIAL_ACTIVITY_DETAILS_CAPACITY;
         for (let i = RetroConstants.TEMPLATE_LAST_ROW + numberOfRowsToBeAdded; i >= RetroConstants.TEMPLATE_FIRST_ROW_AFTER_ACTIVITY_DETAILS; i--) {
@@ -134,7 +132,7 @@ class RetroGenerationService {
      * @param template - excel worksheet template which is manipulated
      * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
      */
-    private correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
+    public correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook, reportTemplate: any}, testResultsLength: any) {
         const worksheet = template.workbook.getWorksheet(1);
 
         worksheet.mergeCells(`B${testResultsLength + 19}:C${testResultsLength + 19}`);
