@@ -113,7 +113,10 @@ class RetroGenerationService {
         const numberOfRowsToBeAdded = testResultsLength - RetroConstants.INITIAL_ACTIVITY_DETAILS_CAPACITY;
         for (let i = RetroConstants.TEMPLATE_LAST_ROW + numberOfRowsToBeAdded; i >= RetroConstants.TEMPLATE_FIRST_ROW_AFTER_ACTIVITY_DETAILS; i--) {
             const currentRow = worksheet.getRow(i);
-            const rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
+            let rowToBeShifted = worksheet.getRow(i - numberOfRowsToBeAdded);
+            if ( rowToBeShifted.number < 17 ) {
+                rowToBeShifted = worksheet.getRow(17);
+            }
             currentRow.height = rowToBeShifted.height;
             for (let j = RetroConstants.TEMPLATE_FIRST_COLUMN; j < RetroConstants.TEMPLATE_LAST_COLUMN; j++) {
                 const currentCell = currentRow.getCell(j);
