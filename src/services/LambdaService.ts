@@ -30,6 +30,10 @@ class LambdaService {
             .promise();
     }
 
+    /**
+     * Used to change a 404 response to a 200 one with empty body.
+     * @param payload - 404 payload that needs to be converted.
+     */
     public convertEmptyResponse(payload: any) {
         payload.body = "[]";
         payload.statusCode = 200;
