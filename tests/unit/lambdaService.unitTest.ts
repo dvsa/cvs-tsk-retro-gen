@@ -4,6 +4,9 @@ import {expect} from "chai";
 import {Lambda} from "aws-sdk";
 
 describe("When LambdaService ", () => {
+    before(function() {
+        this.timeout(10000); // 10 second timeout for setup
+    });
     context("gets 404", () => {
         it("should return an empty 200", async () => {
             const service = new LambdaService(new Lambda());
@@ -16,6 +19,9 @@ describe("When LambdaService ", () => {
 
 
 describe("When LambdaService ", () => {
+    before(function() {
+        this.timeout(10000); // 10 second timeout for setup
+    });
     context("gets 503", () => {
         it("should throw an error", async () => {
             const service = new LambdaService(new Lambda());

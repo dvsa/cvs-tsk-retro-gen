@@ -12,6 +12,9 @@ import * as Excel from "exceljs";
 import {Duplex} from "stream";
 
 describe("report-gen", () => {
+    before(function() {
+        this.timeout(10000); // 10 second timeout for setup
+    });
     context("TestResultsService", () => {
         const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
         LambdaMockService.populateFunctions();

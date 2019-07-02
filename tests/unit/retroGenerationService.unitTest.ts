@@ -8,6 +8,9 @@ import {expect} from "chai";
 
 
 describe("RetroGenerationService", () => {
+    before(function() {
+        this.timeout(10000); // 10 second timeout for setup
+    });
     context("adjustStaticTemplateForMoreThan11Tests", () => {
         it("", async () => {
             const retroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new Lambda())));
