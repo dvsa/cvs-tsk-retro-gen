@@ -13,8 +13,3 @@ invoke:
     functions:
       testResults:
           name: test-results-${BRANCH}
-s3:
-  local:
-    endpoint: http://localhost:7000
-    s3ForcePathStyle: true
-  remote: {}

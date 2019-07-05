@@ -4,8 +4,12 @@ declare enum StationType {
     HQ = "hq"
 }
 
-interface IS3Config {
-    endpoint: string;
+interface ISPConfig {
+    azure_sharepoint_client_id: string;
+    azure_sharepoint_client_secret: string;
+    sharepoint_site_id: string;
+    sharepoint_drive_id: string;
+    sharepoint_parent_id: string;
 }
 
 interface IActivity {
@@ -26,4 +30,4 @@ interface IInvokeConfig {
     functions: { testResults: { name: string }, techRecords: { name: string; mock: string } };
 }
 
-export {IS3Config, IActivity, IInvokeConfig};
+export {ISPConfig, IActivity, IInvokeConfig};
