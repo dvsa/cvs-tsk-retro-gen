@@ -51,6 +51,8 @@
     "node-fetch": "^2.2.0",
     "node-yaml": "^3.2.0",
     "reflect-metadata": "^0.1.13",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
     "sprestlib": "^1.9.0",
     "xmlhttprequest": "^1.8.0"
   },

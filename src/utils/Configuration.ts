@@ -1,14 +1,17 @@
 // @ts-ignore
 import * as yml from "node-yaml";
-import {IInvokeConfig, IS3Config} from "../models";
+import {IInvokeConfig, ISPConfig} from "../models";
 
 class Configuration {
 
     private static instance: Configuration;
     private readonly config: any;
+    private spConfig: ISPConfig;
 
-    private constructor(configPath: string) {
+    private constructor(configPath: string, spConfigPath: string) {
         this.config = yml.readSync(configPath);
+        this.spConfig = yml.readSync(spConfigPath);
+        this.config = Object.assign(this.config, this.spConfig);
 
         // Replace environment variable references
         let stringifiedConfig: string = JSON.stringify(this.config);
@@ -34,7 +37,7 @@ class Configuration {
      */
     public static getInstance(): Configuration {
         if (!this.instance) {
-            this.instance = new Configuration("../config/config.yml");
+            this.instance = new Configuration("../config/config.yml", "../config/secrets.yml");
         }
 
         return Configuration.instance;
@@ -52,15 +55,12 @@ class Configuration {
      * Retrieves the DynamoDB config
      * @returns IDynamoDBConfig
      */
-    public getS3Config(): IS3Config {
-        if (!this.config.s3) {
-            throw new Error("DynamoDB config is not defined in the config file.");
+    public getSharePointConfig(): ISPConfig {
+        if (!this.config.sp) {
+            throw new Error("SharePoint config is not defined in the config file.");
         }
 
-        // Not defining BRANCH will default to local
-        const env: string = (!process.env.BRANCH || process.env.BRANCH === "local") ? "local" : "remote";
-
-        return this.config.s3[env];
+        return this.config.sp;
     }
 
     /**
