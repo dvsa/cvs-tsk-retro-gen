@@ -5,6 +5,13 @@ import {OptionsWithUri} from "request-promise";
 
 class SharePointAuthenticationService {
     private readonly spConfig: ISPConfig = Configuration.getInstance().getSharePointConfig();
+    private request: any;
+
+    // expects request-promise, but due to the nature of the library, it seems nigh impossible to mock through
+    // conventional means, so need to use DI.
+    constructor(request: any) {
+        this.request = request;
+    }
 
     /**
      * Does a POST call to azure and gets a token for the sharepoint instance with client_id and client_secret defined in secrets.yml file
@@ -21,7 +28,7 @@ class SharePointAuthenticationService {
             }
         };
 
-        return request.get(tokenParams);
+        return this.request.get(tokenParams);
     }
 }
 

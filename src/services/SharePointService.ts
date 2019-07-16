@@ -1,10 +1,16 @@
 import {OptionsWithUri} from "request-promise";
-import rp from "request-promise";
 import {ISPConfig} from "../models";
 import {Configuration} from "../utils/Configuration";
 
 class SharePointService {
     private readonly spConfig: ISPConfig = Configuration.getInstance().getSharePointConfig();
+    private request: any;
+
+    // expects request-promise, but due to the nature of the library, it seems nigh impossible to mock through
+    // conventional means, so need to use DI.
+    constructor(request: any) {
+        this.request = request;
+    }
 
     /**
      * Does a PUT call to sharepoint site identified by sharepoint_site_id defined in secrets.yml and uploads a file given as parameter to the drive and folder specified in secrets.yml.
@@ -23,7 +29,7 @@ class SharePointService {
             body: fileBuffer
         };
 
-        return rp(sharepointParams);
+        return this.request.put(sharepointParams);
     }
 }
 
