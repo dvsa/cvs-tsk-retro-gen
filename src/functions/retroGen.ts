@@ -4,6 +4,7 @@ import {ManagedUpload} from "aws-sdk/clients/s3";
 import {RetroGenerationService} from "../services/RetroGenerationService";
 import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
 import {SharePointService} from "../services/SharePointService";
+import * as rp from "request-promise";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -18,8 +19,8 @@ const retroGen = async (event: any, context?: Context, callback?: Callback): Pro
     }
     const retroService: RetroGenerationService = Injector.resolve<RetroGenerationService>(RetroGenerationService);
     const retroUploadPromises: Array<Promise<ManagedUpload.SendData>> = [];
-    const sharepointAuthenticationService = new SharePointAuthenticationService();
-    const sharePointService = new SharePointService();
+    const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
+    const sharePointService = new SharePointService(rp);
 
     event.Records.forEach((record: any) => {
         const visit: any = JSON.parse(record.body);
