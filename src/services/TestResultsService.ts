@@ -21,6 +21,7 @@ class TestResultsService {
      * @param params - getTestResultsByTesterStaffId query parameters
      */
     public getTestResults(params: any): Promise<any> {
+        console.log("IN GETTESTRESULTS() FUNCTION");
         const config: IInvokeConfig = this.config.getInvokeConfig();
         const invokeParams: any = {
             FunctionName: config.functions.testResults.name,
@@ -34,6 +35,7 @@ class TestResultsService {
         };
         return this.lambdaClient.invoke(invokeParams)
         .then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+            console.log("AFTER INVOKING TESTRESULTS");
             const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
             const testResults: any[] = JSON.parse(payload.body); // Response conversion
 

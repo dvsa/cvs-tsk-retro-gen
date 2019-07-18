@@ -27,7 +27,7 @@ class SharePointAuthenticationService {
                 resource: "https://graph.microsoft.com/"
             }
         };
-
+        console.log("IN GETTOKEN() FUNCTION");
         return this.request.get(tokenParams);
     }
 }

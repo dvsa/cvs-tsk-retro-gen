@@ -26,9 +26,13 @@ const retroGen = async (event: any, context?: Context, callback?: Callback): Pro
         const visit: any = JSON.parse(record.body);
         const retroUploadPromise = retroService.generateRetroReport(visit)
             .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
+                console.log("AFTER GENERATION REPORT");
                 const tokenResponse = await sharepointAuthenticationService.getToken();
+                console.log("AFTER GETTING THE TOKEN");
                 const accessToken = JSON.parse(tokenResponse).access_token;
+                console.log("AFTER PARSING THE TOKEN");
                 const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse. fileBuffer, accessToken);
+                console.log("AFTER UPLOADING TO SHAREPOINT");
                 return sharePointResponse;
             });
 
