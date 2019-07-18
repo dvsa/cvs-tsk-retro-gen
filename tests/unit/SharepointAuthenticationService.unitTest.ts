@@ -7,7 +7,7 @@ describe("SharepointAuthenticationService", () => {
     context("getToken()", () => {
         context("when rp throws error",  () => {
             const stub = sinon.fake.throws(new Error("Demo error"));
-            const mock = {get: stub};
+            const mock = {post: stub};
             const sharePointAuthenticationService = new SharePointAuthenticationService(mock);
             it("should throw error", async () => {
                 try {
@@ -20,7 +20,7 @@ describe("SharepointAuthenticationService", () => {
         });
         context("when rp doesn't throw error" , () => {
             const stub = sinon.fake.returns("Good response");
-            const mock = {get: stub};
+            const mock = {post: stub};
             it("should not throw error", async () => {
                 const sharePointAuthenticationService = new SharePointAuthenticationService(mock);
                 try {

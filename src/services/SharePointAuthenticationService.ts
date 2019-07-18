@@ -28,7 +28,7 @@ class SharePointAuthenticationService {
         };
         console.log("IN GETTOKEN() FUNCTION");
         console.log("tokenRequestParams -> ", tokenParams);
-        return this.request.get(tokenParams);
+        return this.request.post(tokenParams);
     }
 }
 
