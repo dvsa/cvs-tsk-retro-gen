@@ -1,4 +1,3 @@
-import * as request from "request-promise";
 import {ISPConfig} from "../models";
 import {Configuration} from "../utils/Configuration";
 import {OptionsWithUri} from "request-promise";
