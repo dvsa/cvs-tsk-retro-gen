@@ -29,6 +29,7 @@ class SharePointService {
             body: fileBuffer
         };
         console.log("IN UPLOAD() FUNCTION");
+        console.log("sharepoint request params -> ", sharepointParams);
         return this.request.put(sharepointParams);
     }
 }
