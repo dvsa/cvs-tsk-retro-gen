@@ -7,7 +7,7 @@ declare enum StationType {
 interface ISPConfig {
     azure_sharepoint_client_id: string;
     azure_sharepoint_client_secret: string;
-    sharepoint_site_id: string;
+    sharepoint_site_collection: string;
     sharepoint_drive_id: string;
     sharepoint_parent_id: string;
 }
