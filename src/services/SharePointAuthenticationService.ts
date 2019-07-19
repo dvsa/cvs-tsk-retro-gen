@@ -26,8 +26,6 @@ class SharePointAuthenticationService {
                 resource: "https://graph.microsoft.com/"
             }
         };
-        console.log("IN GETTOKEN() FUNCTION");
-        console.log("tokenRequestParams -> ", tokenParams);
         return this.request.post(tokenParams);
     }
 }

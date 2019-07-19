@@ -21,15 +21,13 @@ class SharePointService {
     public async upload(fileName: string, fileBuffer: Buffer, accessToken: string) {
         const sharepointParams: OptionsWithUri = {
             method: "PUT",
-            uri: `https://graph.microsoft.com/v1.0/sites/${this.spConfig.sharepoint_site_id}/drives/${this.spConfig.sharepoint_drive_id}/` +
+            uri: `https://graph.microsoft.com/v1.0/sites/${this.spConfig.sharepoint_site_collection}/drives/${this.spConfig.sharepoint_drive_id}/` +
                 `items/${this.spConfig.sharepoint_parent_id}:/${fileName}:/content`,
             headers: {
                 Authorization: "Bearer " + accessToken
             },
             body: fileBuffer
         };
-        console.log("IN UPLOAD() FUNCTION");
-        console.log("sharepoint request params -> ", sharepointParams);
         return this.request.put(sharepointParams);
     }
 }
