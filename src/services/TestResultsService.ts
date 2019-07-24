@@ -33,6 +33,7 @@ class TestResultsService {
                 queryStringParameters: params
             }),
         };
+        console.log("TEST RESULTS INVOKE PARAMS ->", invokeParams);
         return this.lambdaClient.invoke(invokeParams)
         .then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
             console.log("AFTER INVOKING TESTRESULTS");
