@@ -25,11 +25,9 @@ class RetroGenerationService {
             toDateTime: activity.endTime,
             testStationPNumber: activity.testStationPNumber
         }).then((testResults: any) => {
-            console.log("AFTER GENERATING REPORT");
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
-                console.log("AFTER FETCHING RETRO TEMPLATE");
                 if (testResults.length > 11) {
                     this.adjustStaticTemplateForMoreThan11Tests(template, testResults.length);
                     this.correctTemplateAfterAdjustment(template, testResults.length);
