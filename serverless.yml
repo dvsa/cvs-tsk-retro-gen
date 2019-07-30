@@ -50,7 +50,7 @@ custom:
     - name: cvs-svc-test-results
       lang: javascript
       git: git@github.com:dvsa/cvs-svc-test-results.git
-      branch: feature/CVSB-1241
+      branch: develop
       handler: src/functions/getTestResultsByTesterStaffId.getTestResultsByTesterStaffId
       commands:
       - npm install
