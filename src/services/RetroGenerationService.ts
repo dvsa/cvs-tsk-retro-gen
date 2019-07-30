@@ -48,7 +48,7 @@ class RetroGenerationService {
                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
                     const testResult: any = testResults[j];
                     const testType: any = testResult.testTypes;
-                    const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "Prohibition was not issued";
+                    const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
                     let defects: string = "";
                     let reasonForAbandoning: string = "";
                     let additionalCommentsAbandon: string = "";
@@ -65,7 +65,7 @@ class RetroGenerationService {
                         defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
                                         testType.defects[key].deficiencyCategory + prsString +
                                         (testType.defects[key].additionalInformation.notes ? (", " +
-                                        testType.defects[key].additionalInformation.notes) : "") + ")";
+                                        testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
 
                     }
 

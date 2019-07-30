@@ -10,6 +10,8 @@ import {Configuration} from "../../src/utils/Configuration";
 import {IActivity, IS3Config} from "../../src/models";
 import * as Excel from "exceljs";
 import {Duplex} from "stream";
+import {SQSEvent} from "aws-lambda";
+import {Workbook} from "exceljs";
 
 describe("report-gen", () => {
     context("TestResultsService", () => {
@@ -51,6 +53,7 @@ describe("report-gen", () => {
                                         additionalNotesRecorded: "VEHICLE FRONT REGISTRATION PLATE MISSING",
                                         defects: [
                                             {
+                                                prohibitionIssued: true,
                                                 deficiencyCategory: "major",
                                                 deficiencyText: "missing.",
                                                 prs: false,
@@ -186,14 +189,37 @@ describe("report-gen", () => {
                     stream.push(null);
 
                     return workbook.xlsx.read(stream)
-                    .then((excelFile: any) => {
+                    .then((excelFile: Excel.Workbook) => {
                         const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
                         expect(excelFile.creator).to.equal("Commercial Vehicles Services Beta Team");
+                        // @ts-ignore
                         expect(excelFile.company).to.equal("Drivers and Vehicles Standards Agency");
                         expect(reportSheet.name).to.equal("Retrokey report");
                     });
                 });
+            });
+
+            context("the report contains prohibitionIssued false on testType level and true on defects level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
+                    " issued on defects level and none on the Additional test type notes level", () => {
+                    return retroGenerationService.generateRetroReport(activity)
+                        .then((result: any) => {
+                            const workbook = new Excel.Workbook();
+                            const stream = new Duplex();
+                            stream.push(result.fileBuffer);
+                            stream.push(null);
+
+                            return workbook.xlsx.read(stream)
+                                .then((excelFile: Excel.Workbook) => {
+                                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                                    const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was issued");
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: none;");
+                                });
+                        });
+                });
+
             });
         });
     });
