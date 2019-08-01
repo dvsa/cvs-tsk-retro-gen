@@ -18,7 +18,7 @@ class SharePointAuthenticationService {
     public async getToken() {
         const tokenParams: OptionsWithUri = {
             method: "POST",
-            uri: "https://login.microsoftonline.com/6c448d90-4ca1-4caf-ab59-0a2aa67d7801/oauth2/token",
+            uri: `https://login.microsoftonline.com/${this.spConfig.azure_sharepoint_tenant_id}/oauth2/token`,
             form: {
                 grant_type: "client_credentials",
                 client_id: this.spConfig.azure_sharepoint_client_id,
