@@ -269,6 +269,7 @@ describe("report-gen", () => {
 
             });
 
+
             context("the report contains prohibitionIssued true on testType level and false on defects level", () => {
                 it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
                     " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
@@ -284,8 +285,9 @@ describe("report-gen", () => {
                                 .then((excelFile: Excel.Workbook) => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
-                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was issued");
-                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                    // @ts-ignore
+                                    expect((failureAdvisoryItemsQAICommentsTestValue.match(/Prohibition was issued/g) || []).length).to.eql(2);
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
                                 });
                         });
                 });
