@@ -224,8 +224,8 @@ describe("report-gen", () => {
 
 
             context("the report contains prohibitionIssued false on testType level and false on defects level", () => {
-                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
-                    " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS NOT" +
+                    " issued on defects level and none on the Additional test type notes level", () => {
                     LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionFalseTestTypesFalseDefects.json");
                     return retroGenerationService.generateRetroReport(activity)
                         .then((result: any) => {
@@ -247,8 +247,8 @@ describe("report-gen", () => {
             });
 
             context("the report contains prohibitionIssued true on testType level and false on defects level", () => {
-                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
-                    " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS NOT" +
+                    " issued on defects level and that the prohibition WAS issued on the Additional test type notes level", () => {
                     LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionTrueTestTypesFalseDefects.json");
                     return retroGenerationService.generateRetroReport(activity)
                         .then((result: any) => {
