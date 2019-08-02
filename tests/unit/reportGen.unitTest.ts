@@ -221,6 +221,76 @@ describe("report-gen", () => {
                 });
 
             });
+
+
+            context("the report contains prohibitionIssued false on testType level and false on defects level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
+                    " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
+                    LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionFalseTestTypesFalseDefects.json");
+                    return retroGenerationService.generateRetroReport(activity)
+                        .then((result: any) => {
+                            const workbook = new Excel.Workbook();
+                            const stream = new Duplex();
+                            stream.push(result.fileBuffer);
+                            stream.push(null);
+
+                            return workbook.xlsx.read(stream)
+                                .then((excelFile: Excel.Workbook) => {
+                                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                                    const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was not issued");
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: none;");
+                                });
+                        });
+                });
+
+            });
+
+            context("the report contains prohibitionIssued true on testType level and false on defects level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
+                    " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
+                    LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionTrueTestTypesFalseDefects.json");
+                    return retroGenerationService.generateRetroReport(activity)
+                        .then((result: any) => {
+                            const workbook = new Excel.Workbook();
+                            const stream = new Duplex();
+                            stream.push(result.fileBuffer);
+                            stream.push(null);
+
+                            return workbook.xlsx.read(stream)
+                                .then((excelFile: Excel.Workbook) => {
+                                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                                    const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was not issued");
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                });
+                        });
+                });
+
+            });
+
+            context("the report contains prohibitionIssued true on testType level and false on defects level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
+                    " issued on defects level and that the prohibition WAS also issued on the Additional test type notes level", () => {
+                    LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionTrueTestTypesTrueDefects.json");
+                    return retroGenerationService.generateRetroReport(activity)
+                        .then((result: any) => {
+                            const workbook = new Excel.Workbook();
+                            const stream = new Duplex();
+                            stream.push(result.fileBuffer);
+                            stream.push(null);
+
+                            return workbook.xlsx.read(stream)
+                                .then((excelFile: Excel.Workbook) => {
+                                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                                    const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was issued");
+                                    expect (failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                });
+                        });
+                });
+
+            });
         });
     });
 
