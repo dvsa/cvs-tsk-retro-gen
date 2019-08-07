@@ -49,7 +49,7 @@ custom:
     dependencies:
     - name: cvs-svc-test-results
       lang: javascript
-      git: git@github.com:dvsa/cvs-svc-test-results.git
+      git: https://github.com/dvsa/cvs-svc-test-results.git
       branch: develop
       handler: src/functions/getTestResultsByTesterStaffId.getTestResultsByTesterStaffId
       commands:
