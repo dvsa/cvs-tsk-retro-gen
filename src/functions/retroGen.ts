@@ -1,8 +1,7 @@
-import {Callback, Context, Handler} from "aws-lambda";
+import {Callback, Context} from "aws-lambda";
 import {Injector} from "../models/injector/Injector";
 import {ManagedUpload} from "aws-sdk/clients/s3";
 import {RetroGenerationService} from "../services/RetroGenerationService";
-import {AWSError} from "aws-sdk";
 import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
 import {SharePointService} from "../services/SharePointService";
 
@@ -12,7 +11,7 @@ import {SharePointService} from "../services/SharePointService";
  * @param context - λ Context
  * @param callback - callback function
  */
-const retroGen: Handler = async (event: any, context?: Context, callback?: Callback): Promise<void | ManagedUpload.SendData[]> => {
+const retroGen = async (event: any, context?: Context, callback?: Callback): Promise<void | ManagedUpload.SendData[]> => {
     if (!event) {
         console.error("ERROR: event is not defined.");
         return;
@@ -25,22 +24,20 @@ const retroGen: Handler = async (event: any, context?: Context, callback?: Callb
     event.Records.forEach((record: any) => {
         const visit: any = JSON.parse(record.body);
         const retroUploadPromise = retroService.generateRetroReport(visit)
-        .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
-            const tokenResponse = await sharepointAuthenticationService.getToken();
-            const accessToken = JSON.parse(tokenResponse).access_token;
-            const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse. fileBuffer, accessToken);
-            return sharePointResponse;
-        })
-        .catch((error: any) => {
-            throw error;
-        });
+            .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
+                const tokenResponse = await sharepointAuthenticationService.getToken();
+                const accessToken = JSON.parse(tokenResponse).access_token;
+                const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse. fileBuffer, accessToken);
+                return sharePointResponse;
+            });
 
         retroUploadPromises.push(retroUploadPromise);
     });
 
     return Promise.all(retroUploadPromises)
-    .catch((error: AWSError) => {
+    .catch((error: any) => {
         console.error(error);
+        throw error;
     });
 };
 

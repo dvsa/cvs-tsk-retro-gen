@@ -1,6 +1,7 @@
-import rp, {OptionsWithUri} from "request-promise";
+import * as request from "request-promise";
 import {ISPConfig} from "../models";
 import {Configuration} from "../utils/Configuration";
+import {OptionsWithUri} from "request-promise";
 
 class SharePointAuthenticationService {
     private readonly spConfig: ISPConfig = Configuration.getInstance().getSharePointConfig();
@@ -20,7 +21,7 @@ class SharePointAuthenticationService {
             }
         };
 
-        return rp(tokenParams);
+        return request.get(tokenParams);
     }
 }
 
