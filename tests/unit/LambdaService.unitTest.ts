@@ -12,10 +12,6 @@ describe("When LambdaService ", () => {
             expect(payload.body).to.be.eql("[]");
         });
     });
-});
-
-
-describe("When LambdaService ", () => {
     context("gets 503", () => {
         it("should throw an error", async () => {
             const service = new LambdaService(new Lambda());
