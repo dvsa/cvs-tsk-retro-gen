@@ -14,3 +14,7 @@ export enum RetroConstants {
     TEMPLATE_LAST_COLUMN = 17,
     TEMPLATE_FIRST_COLUMN = 1
 }
+
+export enum ERRORS {
+    EventIsEmpty = "Event is empty"
+}

@@ -2,6 +2,7 @@ import {Callback, Context} from "aws-lambda";
 import {Injector} from "../models/injector/Injector";
 import {ManagedUpload} from "aws-sdk/clients/s3";
 import {RetroGenerationService} from "../services/RetroGenerationService";
+import { ERRORS } from "../models/enums";
 import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
 import {SharePointService} from "../services/SharePointService";
 import * as rp from "request-promise";
@@ -13,9 +14,9 @@ import * as rp from "request-promise";
  * @param callback - callback function
  */
 const retroGen = async (event: any, context?: Context, callback?: Callback): Promise<void | ManagedUpload.SendData[]> => {
-    if (!event) {
+    if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
         console.error("ERROR: event is not defined.");
-        return;
+        throw new Error(ERRORS.EventIsEmpty);
     }
     const retroService: RetroGenerationService = Injector.resolve<RetroGenerationService>(RetroGenerationService);
     const retroUploadPromises: Array<Promise<ManagedUpload.SendData>> = [];
