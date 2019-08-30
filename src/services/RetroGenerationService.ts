@@ -24,7 +24,12 @@ class RetroGenerationService {
             fromDateTime: activity.startTime,
             toDateTime: activity.endTime,
             testStationPNumber: activity.testStationPNumber
-        }).then((testResults: any) => {
+        })
+        .then((testResults) => {
+            // CVSB-7623 - exclude cancelled tests from reports
+            return testResults.filter((test: any) => test.testStatus !== "cancelled");
+        })
+        .then((testResults: any) => {
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(testResults.length)
             .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {

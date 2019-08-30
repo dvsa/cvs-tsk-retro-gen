@@ -1,4 +1,3 @@
-import {describe} from "mocha";
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
 import * as Excel from "exceljs";
 import {TestResultsService} from "../../src/services/TestResultsService";
@@ -37,6 +36,27 @@ describe("RetroGenerationService", () => {
                         expect(activityDetails.length).to.equal(10);
                     });
             });
+
+            it("should still return a template when requested length is 0", () => {
+                return retroGenerationService.fetchRetroTemplate(0)
+                    .then((result: any) => {
+                        const siteVisitDetails: any = result.reportTemplate.siteVisitDetails;
+                        const declaration: any = result.reportTemplate.declaration;
+                        const activityDetails: any = result.reportTemplate.activityDetails;
+
+                        // Validate site visit details
+                        expect(siteVisitDetails.assesor._address).to.equal("C4");
+                        expect(siteVisitDetails.date._address).to.equal("F6");
+                        expect(siteVisitDetails.siteName._address).to.equal("F4");
+                        expect(siteVisitDetails.siteNumber._address).to.equal("F5");
+                        expect(siteVisitDetails.startTime._address).to.equal("C6");
+                        expect(siteVisitDetails.endTime._address).to.equal("C7");
+                        expect(siteVisitDetails.endDate._address).to.equal("F7");
+
+                        // Validate activity details
+                        expect(activityDetails.length).to.equal(0);
+                    });
+            });
         });
     });
 
@@ -59,8 +79,30 @@ describe("RetroGenerationService", () => {
                             expect(excelFile.creator).to.equal("Commercial Vehicles Services Beta Team");
                             expect(excelFile.company).to.equal("Drivers and Vehicles Standards Agency");
                             expect(reportSheet.name).to.equal("Retrokey report");
+
+                            expect(reportSheet.getCell("B16").value).to.equal("Activity");
+                            // tslint:disable-next-line
+                            expect(reportSheet.getCell("B17").value).to.not.be.null;
                         });
                 });
+        });
+
+        context("and testResults returns only cancelled tests", () => {
+            it("should generate an empty report", async () => {
+                LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/cancelled-test-result.json");
+                const output = await retroGenerationService.generateRetroReport(activity);
+                const workbook = new Excel.Workbook();
+                const stream = new Duplex();
+                stream.push(output.fileBuffer); // Convert the incoming file to a readable stream
+                stream.push(null);
+
+                const excelFile = await workbook.xlsx.read(stream);
+                const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+
+                expect(reportSheet.getCell("B16").value).to.equal("Activity");
+                // tslint:disable-next-line
+                expect(reportSheet.getCell("B17").value).to.be.null;
+            });
         });
     });
     context("adjustStaticTemplateForMoreThan11Tests", () => {
