@@ -12,11 +12,11 @@
     "build:dev": "node_modules/typescript/bin/tsc && npm run build:copy",
     "build:copy": "find src -type f \\( -name \"*.yml\" -or -name \"*.json\" -or -name \"*.xlsx\" \\) | cpio -pdm .build && find tests -type f \\( -name \"*.yml\" -or -name \"*.json\" \\)  | cpio -pdm .build",
     "build:docker": "docker-compose -f docker-compose.yml up -d --build",
-    "test": "node_modules/.bin/mocha .build/tests/**/*.unitTest.js",
+    "test": "BRANCH=local SLS_DEBUG=* jest --testMatch=\"**/*.unitTest.ts\" --coverage",
     "tslint": "tslint --project tslint.json",
     "prepush": "npm test && npm run tslint",
     "sonar-scanner": "npm run tslint && npm run coverage && sonar-scanner",
-    "coverage": "nyc mocha tests/unit/*.unitTest.ts && nyc report --reporter=lcov",
+    "coverage": "jest --testMatch=\"**/*.*Test.ts\" --coverage",
     "audit-dep": "npm audit"
   },
   "nyc": {
