@@ -1,4 +1,3 @@
-import {describe} from "mocha";
 import {expect} from "chai";
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
 import {retroGen} from "../../src/functions/retroGen";

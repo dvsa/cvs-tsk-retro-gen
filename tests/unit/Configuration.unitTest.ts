@@ -1,4 +1,3 @@
-import {describe} from "mocha";
 import {expect} from "chai";
 import {Configuration} from "../../src/utils/Configuration";
 import {IInvokeConfig, ISPConfig} from "../../src/models";
@@ -6,7 +5,6 @@ import {IInvokeConfig, ISPConfig} from "../../src/models";
 
 // tslint:disable-next-line:only-arrow-functions
 describe("ConfigurationUtil", function() {
-    this.timeout(10000); // 10 second timeout for setup
     const config: Configuration = Configuration.getInstance();
     const branch = process.env.BRANCH;
 

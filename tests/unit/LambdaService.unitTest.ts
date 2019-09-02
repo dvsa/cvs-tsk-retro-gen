@@ -1,5 +1,4 @@
 import { LambdaService } from "../../src/services/LambdaService";
-import {describe} from "mocha";
 import {expect} from "chai";
 import {Lambda} from "aws-sdk";
 
