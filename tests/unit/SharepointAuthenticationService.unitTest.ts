@@ -1,4 +1,3 @@
-import {describe} from "mocha";
 import {expect} from "chai";
 import {SharePointAuthenticationService} from "../../src/services/SharePointAuthenticationService";
 import sinon from "sinon";
