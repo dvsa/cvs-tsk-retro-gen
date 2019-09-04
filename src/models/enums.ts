@@ -18,3 +18,7 @@ export enum RetroConstants {
 export enum ERRORS {
     EventIsEmpty = "Event is empty"
 }
+
+export enum STATUSES {
+    SUBMITTED = "submitted"
+}

@@ -4,7 +4,7 @@ import * as path from "path";
 import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import moment = require("moment-timezone");
-import {ActivityType, TimeZone, RetroConstants} from "../models/enums";
+import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../models/enums";
 
 @Service()
 class RetroGenerationService {
@@ -23,11 +23,8 @@ class RetroGenerationService {
             testerStaffId: activity.testerStaffId,
             fromDateTime: activity.startTime,
             toDateTime: activity.endTime,
-            testStationPNumber: activity.testStationPNumber
-        })
-        .then((testResults) => {
-            // CVSB-7623 - exclude cancelled tests from reports
-            return testResults.filter((test: any) => test.testStatus !== "cancelled");
+            testStationPNumber: activity.testStationPNumber,
+            testStatus: STATUSES.SUBMITTED
         })
         .then((testResults: any) => {
             // Fetch and populate the Retrokey template
