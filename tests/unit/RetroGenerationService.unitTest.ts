@@ -8,11 +8,13 @@ import {IActivity} from "../../src/models";
 import {Duplex} from "stream";
 import {Injector} from "../../src/models/injector/Injector";
 import {LambdaMockService} from "../models/LambdaMockService";
+import {ActivitiesService} from "../../src/services/ActivitiesService";
 
 
 describe("RetroGenerationService", () => {
     const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
-    const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService);
+    const activitiesService: ActivitiesService = Injector.resolve<ActivitiesService>(ActivitiesService, [LambdaMockService]);
+    const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
     LambdaMockService.populateFunctions();
     context("when generating a template", () => {
         context("and providing the number of rows the template will contain", () => {
@@ -83,6 +85,25 @@ describe("RetroGenerationService", () => {
                             expect(reportSheet.getCell("B16").value).to.equal("Activity");
                             // tslint:disable-next-line
                             expect(reportSheet.getCell("B17").value).to.not.be.null;
+                        });
+                });
+        });
+        it("should return a valid xlsx file as buffer with Time not Testing activity added in the report", () => {
+            return retroGenerationService.generateRetroReport(activity)
+                .then((result: any) => {
+                    const workbook = new Excel.Workbook();
+                    const stream = new Duplex();
+                    stream.push(result.fileBuffer); // Convert the incoming file to a readable stream
+                    stream.push(null);
+
+                    return workbook.xlsx.read(stream)
+                        .then((excelFile: any) => {
+                            const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                            // Validate Time not Testing fields.
+                            expect(reportSheet.getCell("B18").value).to.equal("Time not Testing");
+                            expect(reportSheet.getCell("C18").value).to.equal("10:37:33");
+                            expect(reportSheet.getCell("D18").value).to.equal("10:43:33");
+                            expect(reportSheet.getCell("M18").value).to.contain("Reason for waiting: Break;");
                         });
                 });
         });

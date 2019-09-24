@@ -30,6 +30,7 @@ const retroGen = async (event: any, context?: Context, callback?: Callback): Pro
                 const tokenResponse = await sharepointAuthenticationService.getToken();
                 const accessToken = JSON.parse(tokenResponse).access_token;
                 const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse. fileBuffer, accessToken);
+                console.log(`SharepointResponse: ${sharePointResponse}`);
                 return sharePointResponse;
             });
 

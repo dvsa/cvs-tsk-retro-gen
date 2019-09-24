@@ -1,8 +1,9 @@
-import {IActivity} from "../models";
+import {IActivity, ITestResults, IActivitiesList} from "../models";
 import * as Excel from "exceljs";
 import * as path from "path";
 import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
+import {ActivitiesService} from "./ActivitiesService";
 import moment = require("moment-timezone");
 import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../models/enums";
 import {VEHICLE_TYPES} from "../assets/Enum";
@@ -10,9 +11,11 @@ import {VEHICLE_TYPES} from "../assets/Enum";
 @Service()
 class RetroGenerationService {
     private readonly testResultsService: TestResultsService;
+    private readonly activitiesService: ActivitiesService;
 
-    constructor(testResultsService: TestResultsService) {
+    constructor(testResultsService: TestResultsService, activitiesService: ActivitiesService) {
         this.testResultsService = testResultsService;
+        this.activitiesService = activitiesService;
     }
 
     /**
@@ -28,80 +31,156 @@ class RetroGenerationService {
             testStatus: STATUSES.SUBMITTED
         })
         .then((testResults: any) => {
-            // Fetch and populate the Retrokey template
-            return this.fetchRetroTemplate(testResults.length)
-            .then((template: { workbook: Excel.Workbook, reportTemplate: any} ) => {
-                if (testResults.length > 11) {
-                    this.adjustStaticTemplateForMoreThan11Tests(template, testResults.length);
-                    this.correctTemplateAfterAdjustment(template, testResults.length);
-                }
-                const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
-
-                // Populate site visit details
-                siteVisitDetails.assesor.value = activity.testerName;
-                siteVisitDetails.siteName.value = activity.testStationName;
-                siteVisitDetails.siteNumber.value = activity.testStationPNumber;
-                siteVisitDetails.date.value = moment(activity.startTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
-                siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
-
-                // Populate activity report
-                for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < testResults.length; i++, j++) {
-                    const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                    const testResult: any = testResults[j];
-                    const testType: any = testResult.testTypes;
-                    const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
-                    let defects: string = "";
-                    let reasonForAbandoning: string = "";
-                    let additionalCommentsAbandon: string = "";
-                    let defectsDetails: string = "";
-                    let prsString: string = "";
-
-                    for (const key of Object.keys(testType.defects)) {
-                        if (testType.defects[key].prs) {
-                            prsString = ", PRS";
-                        } else {
-                            prsString = "";
+            // Fetch 'wait' activities for this visit activity
+            return this.activitiesService.getActivities({
+                testerStaffId: activity.testerStaffId,
+                fromStartTime: activity.startTime,
+                toStartTime: activity.endTime,
+                testStationPNumber: activity.testStationPNumber,
+                activityType: "wait",
+            }).then((waitActivities: any[]) => {
+                const totalActivitiesLen = testResults.length + waitActivities.length;
+                // Fetch and populate the Retrokey template
+                return this.fetchRetroTemplate(totalActivitiesLen)
+                    .then((template: { workbook: Excel.Workbook, reportTemplate: any }) => {
+                        if (totalActivitiesLen.length > 11) {
+                            this.adjustStaticTemplateForMoreThan11Tests(template, totalActivitiesLen);
+                            this.correctTemplateAfterAdjustment(template, totalActivitiesLen);
                         }
 
-                        defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
+                        const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
+                        // Populate site visit details
+                        siteVisitDetails.assesor.value = activity.testerName;
+                        siteVisitDetails.siteName.value = activity.testStationName;
+                        siteVisitDetails.siteNumber.value = activity.testStationPNumber;
+                        siteVisitDetails.date.value = moment(activity.startTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+                        siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                        siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                        siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+
+                        // Add testResults and waitActivities in common list and sort them on startTime
+                        const activitiesList = this.computeActivitiesList(testResults, waitActivities);
+                        for (let i =   0, j = 0; i < template.reportTemplate.activityDetails.length && j < activitiesList.length; i++, j++) {
+                            const event: IActivitiesList = activitiesList[j];
+                            if (event.activityType === ActivityType.TEST) {
+                                // Populate activity report
+                                const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+                                const testResult: any = event.activity;
+                                const testType: any = testResult.testTypes;
+                                const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
+                                let defects: string = "";
+                                let reasonForAbandoning: string = "";
+                                let additionalCommentsAbandon: string = "";
+                                let defectsDetails: string = "";
+                                let prsString: string = "";
+
+                                for (const key of Object.keys(testType.defects)) {
+                                    if (testType.defects[key].prs) {
+                                        prsString = ", PRS";
+                                    } else {
+                                        prsString = "";
+                                    }
+
+                                    defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
                                         testType.defects[key].deficiencyCategory + prsString +
                                         (testType.defects[key].additionalInformation.notes ? (", " +
-                                        testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
+                                            testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
+                                }
+                                    if (defectsDetails) {
+                                        defects = `Defects: ${defectsDetails};\r\n`;
+                                    }
+                                    if (testType.reasonForAbandoning) {
+                                        reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+                                    }
+                                    if (testType.additionalCommentsForAbandon) {
+                                        additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+                                    }
 
-                    }
-                    if (defectsDetails) {defects = `Defects: ${defectsDetails};\r\n`; }
-                    if (testType.reasonForAbandoning) {reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`; }
-                    if (testType.additionalCommentsForAbandon) {additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`; }
+                                    detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
+                                    detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                    detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                    detailsTemplate.vrm.value = (testResult.vehicleType === VEHICLE_TYPES.TRL) ? testResult.trailerId : testResult.vrm;
+                                    detailsTemplate.chassisNumber.value = testResult.vin;
+                                    detailsTemplate.testType.value = (testType.testCode).toUpperCase();
+                                    detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
+                                    detailsTemplate.result.value = testType.testResult;
+                                    detailsTemplate.certificateNumber.value = testType.certificateNumber;
+                                    detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+                                    detailsTemplate.preparerId.value = testResult.preparerId;
+                                    detailsTemplate.failureAdvisoryItemsQAIComments.value = defects + reasonForAbandoning + additionalCommentsAbandon + "Additional test type notes: " +
+                                        additionalTestTypeNotes + ";\r\n" + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
+                                }
+                                if (event.activityType === ActivityType.TIME_NOT_TESTING) {
+                                    // Populate wait activities in the report
+                                    const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+                                    const waitActivityResult: any = event.activity;
+                                    let waitReasons: string = "";
+                                    let additionalNotes: string = "";
 
-                    detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                    detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                    detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                    detailsTemplate.vrm.value = (testResult.vehicleType === VEHICLE_TYPES.TRL ) ? testResult.trailerId : testResult.vrm;
-                    detailsTemplate.chassisNumber.value = testResult.vin;
-                    detailsTemplate.testType.value = (testType.testCode).toUpperCase();
-                    detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
-                    detailsTemplate.result.value = testType.testResult;
-                    detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                    detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
-                    detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failureAdvisoryItemsQAIComments.value = defects + reasonForAbandoning + additionalCommentsAbandon + "Additional test type notes: " +
-                                                                            additionalTestTypeNotes + ";\r\n" + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
+                                if (waitActivityResult.waitReason) {
+                                    waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
+                                }
+                                if (waitActivityResult.notes) {
+                                    additionalNotes = `Additional notes: ${waitActivityResult.notes};\r\n`;
+                                }
 
-                }
+                                detailsTemplate.activity.value = (waitActivityResult.activityType === "visit") ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
+                                detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                detailsTemplate.failureAdvisoryItemsQAIComments.value = waitReasons + additionalNotes;
+                            }
+                        }
 
-                return template.workbook.xlsx.writeBuffer()
-                .then((buffer: Excel.Buffer) => {
-                    return {
-                        fileName: "RetrokeyReport_" + moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY") + "_" +
-                                  moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm") + "_" + activity.testStationPNumber + "_" +
-                                  activity.testerName + ".xlsx",
-                        fileBuffer: buffer
-                    };
-                });
+                        return template.workbook.xlsx.writeBuffer()
+                            .then((buffer: Excel.Buffer) => {
+                                return {
+                                    fileName: "RetrokeyReport_" + moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY") + "_" +
+                                        moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm") + "_" + activity.testStationPNumber + "_" +
+                                        activity.testerName + ".xlsx",
+                                    fileBuffer: buffer
+                                };
+                            });
+                    });
             });
         });
+    }
+
+    /* Method to collate testResults and waitActivities into a common list
+     * and then sort them on startTime to display the activities in a sequence.
+     * @param testResultsList: testResults list
+     * @param waitActivitiesList: wait activities list
+     */
+    public computeActivitiesList(testResultsList: ITestResults[], waitActivitiesList: IActivity[]) {
+        const list: IActivitiesList[] = [];
+        // Adding Test results to the list
+        for (const testResult of testResultsList) {
+            const act: IActivitiesList = {
+                startTime: testResult.testTypes.testTypeStartTimestamp,
+                activityType: ActivityType.TEST,
+                activity: testResult
+            };
+            list.push(act);
+        }
+        // Adding Wait activities to the list
+        for (const waitTime of waitActivitiesList) {
+            const act: IActivitiesList = {
+                startTime: waitTime.startTime,
+                activityType: ActivityType.TIME_NOT_TESTING,
+                activity: waitTime
+            };
+            list.push(act);
+        }
+        // Sorting the list by StartTime
+        const sortDateAsc = (date1: any, date2: any) => {
+            const date = new Date(date1.startTime).toISOString();
+            const dateToCompare = new Date(date2.startTime).toISOString();
+            if (date > dateToCompare) { return 1; }
+            if (date < dateToCompare) { return -1; }
+            return 0;
+        };
+        // Sort the list on activity startTime
+        list.sort(sortDateAsc);
+        return list;
     }
 
     /**

@@ -8,6 +8,7 @@ import {TestResultsService} from "../../src/services/TestResultsService";
 import {IActivity} from "../../src/models";
 import * as Excel from "exceljs";
 import {Duplex} from "stream";
+import {ActivitiesService} from "../../src/services/ActivitiesService";
 
 describe("TestResultsService", () => {
         const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
@@ -143,7 +144,9 @@ describe("TestResultsService", () => {
 
 context("RetroGenerationService", () => {
         const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
-        const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService);
+        const activitiesService: ActivitiesService = Injector.resolve<ActivitiesService>(ActivitiesService, [LambdaMockService]);
+        const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
+
         LambdaMockService.populateFunctions();
 
         context("when generating a template", () => {
@@ -284,6 +287,33 @@ context("RetroGenerationService", () => {
                                     // @ts-ignore
                                     expect((failureAdvisoryItemsQAICommentsTestValue.match(/Prohibition was issued/g) || []).length).to.eql(2);
                                     expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                });
+                        });
+                });
+
+            });
+
+            context("the report contains prohibitionIssued false on testType level and true on defects level", () => {
+                it("should contain on the corresponding testType line, on the failureAdvisoryItemsQAICommentsTestValue column, the info that the prohibition WAS" +
+                    " issued on defects level and none on the Additional test type notes level", () => {
+                    return retroGenerationService.generateRetroReport(activity)
+                        .then((result: any) => {
+                            const workbook = new Excel.Workbook();
+                            const stream = new Duplex();
+                            stream.push(result.fileBuffer);
+                            stream.push(null);
+
+                            return workbook.xlsx.read(stream)
+                                .then((excelFile: Excel.Workbook) => {
+                                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                                    // Validating first Wait activity
+                                    let failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M18").value;
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Reason for waiting: Break;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.not.contain("Additional notes:");
+                                    // Validating second Wait activity
+                                    failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M19").value;
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Reason for waiting: Others;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional notes: Documentation Delay;");
                                 });
                         });
                 });

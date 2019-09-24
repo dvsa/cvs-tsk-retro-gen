@@ -1,6 +1,7 @@
 export enum ActivityType {
     TEST = "Test",
-    WAIT_TIME = "Wait Time"
+    WAIT_TIME = "Wait Time",
+    TIME_NOT_TESTING = "Time not Testing"
 }
 
 export enum TimeZone {
