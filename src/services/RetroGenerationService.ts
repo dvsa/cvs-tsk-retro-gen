@@ -78,7 +78,7 @@ class RetroGenerationService {
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                    detailsTemplate.vrm.value = (testResult.vehicleType === "psv") ? testResult.vrm : testResult.trailerId;
+                    detailsTemplate.vrm.value = (testResult.vehicleType === "trl" ) ? testResult.trailerId : testResult.vrm;
                     detailsTemplate.chassisNumber.value = testResult.vin;
                     detailsTemplate.testType.value = (testType.testCode).toUpperCase();
                     detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : testResult.noOfAxles;
