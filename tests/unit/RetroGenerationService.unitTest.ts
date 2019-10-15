@@ -87,9 +87,9 @@ describe("RetroGenerationService", () => {
                 });
         });
 
-        context("and testResults returns only cancelled tests", () => {
-            it("should generate an empty report", async () => {
-                LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/cancelled-test-result.json");
+        context("and testResults returns HGVs and TRLs", () => {
+            it("should return a valid xlsx file as buffer with trailerId populated for trl vehicles and noOfAxles populated for hgv and trl vehicles", async () => {
+                LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/hgv-trl-test-results.json");
                 const output = await retroGenerationService.generateRetroReport(activity);
                 const workbook = new Excel.Workbook();
                 const stream = new Duplex();
@@ -99,9 +99,11 @@ describe("RetroGenerationService", () => {
                 const excelFile = await workbook.xlsx.read(stream);
                 const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
-                expect(reportSheet.getCell("B16").value).to.equal("Activity");
-                // tslint:disable-next-line
-                expect(reportSheet.getCell("B17").value).to.be.null;
+                expect(reportSheet.getCell("H17").value).to.equal(2);
+                expect(reportSheet.getCell("H18").value).to.equal(5);
+                expect(reportSheet.getCell("E17").value).to.equal("JY58FPP");
+                expect(reportSheet.getCell("E18").value).to.equal("12345");
+
             });
         });
     });
