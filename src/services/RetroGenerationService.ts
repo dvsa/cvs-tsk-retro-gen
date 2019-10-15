@@ -45,6 +45,7 @@ class RetroGenerationService {
                 siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
                 siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
 
+                console.log("TEST_RESULTS ->", testResults);
                 // Populate activity report
                 for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < testResults.length; i++, j++) {
                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
@@ -70,6 +71,13 @@ class RetroGenerationService {
                                         testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
 
                     }
+
+                    console.log("VIN", testResult.vin);
+                    console.log("VRM", testResult.vrm);
+                    console.log("VRM", testResult.trailerId);
+                    console.log("NUMBER_OF_AXLES ->", testResult.noOfAxles);
+                    console.log("NUMBER_OF_SEATS ->", testResult.numberOfSeats);
+                    console.log("VEHICLE_TYPE ->", testResult.vehicleType);
 
                     if (defectsDetails) {defects = `Defects: ${defectsDetails};\r\n`; }
                     if (testType.reasonForAbandoning) {reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`; }
