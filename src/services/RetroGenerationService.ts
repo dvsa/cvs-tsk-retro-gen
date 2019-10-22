@@ -5,6 +5,7 @@ import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import moment = require("moment-timezone");
 import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../models/enums";
+import {VEHICLE_TYPES} from "../assets/Enum";
 
 @Service()
 class RetroGenerationService {
@@ -77,10 +78,10 @@ class RetroGenerationService {
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                    detailsTemplate.vrm.value = (testResult.vehicleType === "trl" ) ? testResult.trailerId : testResult.vrm;
+                    detailsTemplate.vrm.value = (testResult.vehicleType === VEHICLE_TYPES.TRL ) ? testResult.trailerId : testResult.vrm;
                     detailsTemplate.chassisNumber.value = testResult.vin;
                     detailsTemplate.testType.value = (testType.testCode).toUpperCase();
-                    detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === "psv") ? testResult.numberOfSeats : testResult.noOfAxles;
+                    detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
                     detailsTemplate.result.value = testType.testResult;
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
