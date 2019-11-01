@@ -1,15 +1,14 @@
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
 import * as Excel from "exceljs";
 import {TestResultsService} from "../../src/services/TestResultsService";
-import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
-import {IActivity} from "../../src/models";
+import {IActivity, ITestResults} from "../../src/models";
 import {Duplex} from "stream";
 import {Injector} from "../../src/models/injector/Injector";
 import {LambdaMockService} from "../models/LambdaMockService";
 import {ActivitiesService} from "../../src/services/ActivitiesService";
-
+import testResultResponse from "../resources/test-results-200-response.json";
 
 describe("RetroGenerationService", () => {
     const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
@@ -26,16 +25,16 @@ describe("RetroGenerationService", () => {
                         const activityDetails: any = result.reportTemplate.activityDetails;
 
                         // Validate site visit details
-                        expect(siteVisitDetails.assesor._address).to.equal("C4");
-                        expect(siteVisitDetails.date._address).to.equal("F6");
-                        expect(siteVisitDetails.siteName._address).to.equal("F4");
-                        expect(siteVisitDetails.siteNumber._address).to.equal("F5");
-                        expect(siteVisitDetails.startTime._address).to.equal("C6");
-                        expect(siteVisitDetails.endTime._address).to.equal("C7");
-                        expect(siteVisitDetails.endDate._address).to.equal("F7");
+                        expect(siteVisitDetails.assesor._address).toEqual("C4");
+                        expect(siteVisitDetails.date._address).toEqual("F6");
+                        expect(siteVisitDetails.siteName._address).toEqual("F4");
+                        expect(siteVisitDetails.siteNumber._address).toEqual("F5");
+                        expect(siteVisitDetails.startTime._address).toEqual("C6");
+                        expect(siteVisitDetails.endTime._address).toEqual("C7");
+                        expect(siteVisitDetails.endDate._address).toEqual("F7");
 
                         // Validate activity details
-                        expect(activityDetails.length).to.equal(10);
+                        expect(activityDetails.length).toEqual(10);
                     });
             });
 
@@ -47,16 +46,16 @@ describe("RetroGenerationService", () => {
                         const activityDetails: any = result.reportTemplate.activityDetails;
 
                         // Validate site visit details
-                        expect(siteVisitDetails.assesor._address).to.equal("C4");
-                        expect(siteVisitDetails.date._address).to.equal("F6");
-                        expect(siteVisitDetails.siteName._address).to.equal("F4");
-                        expect(siteVisitDetails.siteNumber._address).to.equal("F5");
-                        expect(siteVisitDetails.startTime._address).to.equal("C6");
-                        expect(siteVisitDetails.endTime._address).to.equal("C7");
-                        expect(siteVisitDetails.endDate._address).to.equal("F7");
+                        expect(siteVisitDetails.assesor._address).toEqual("C4");
+                        expect(siteVisitDetails.date._address).toEqual("F6");
+                        expect(siteVisitDetails.siteName._address).toEqual("F4");
+                        expect(siteVisitDetails.siteNumber._address).toEqual("F5");
+                        expect(siteVisitDetails.startTime._address).toEqual("C6");
+                        expect(siteVisitDetails.endTime._address).toEqual("C7");
+                        expect(siteVisitDetails.endDate._address).toEqual("F7");
 
                         // Validate activity details
-                        expect(activityDetails.length).to.equal(0);
+                        expect(activityDetails.length).toEqual(0);
                     });
             });
         });
@@ -78,15 +77,58 @@ describe("RetroGenerationService", () => {
                         .then((excelFile: any) => {
                             const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
-                            expect(excelFile.creator).to.equal("Commercial Vehicles Services Beta Team");
-                            expect(excelFile.company).to.equal("Drivers and Vehicles Standards Agency");
-                            expect(reportSheet.name).to.equal("Retrokey report");
+                            expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
+                            expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
+                            expect(reportSheet.name).toEqual("Retrokey report");
 
-                            expect(reportSheet.getCell("B16").value).to.equal("Activity");
+                            expect(reportSheet.getCell("B16").value).toEqual("Activity");
                             // tslint:disable-next-line
-                            expect(reportSheet.getCell("B17").value).to.not.be.null;
+                            expect(reportSheet.getCell("B17").value).not.toBeNull();
+                            expect(reportSheet.getCell("B29").value).toEqual("Document Requests");
                         });
                 });
+        });
+        context("with more than 11 tests", () => {
+          it("should extend the template to fit", () => {
+            const testResult = JSON.parse(testResultResponse.body)[0];
+            const myTests: ITestResults[] = [];
+            for (let i = 0; i < 20; i++) {
+              myTests.push(testResult);
+            }
+            const mockTestResultsService = jest.fn().mockImplementation(() => {
+              return {
+                getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(myTests))
+              };
+            });
+            const mockActivitiesService = jest.fn().mockImplementation(() => {
+              return {
+                getActivities: () => Promise.resolve([])
+              };
+            });
+            const retroGenSvc = new RetroGenerationService(new mockTestResultsService(), new mockActivitiesService());
+            return retroGenSvc.generateRetroReport(activity)
+              .then((result: any) => {
+                const workbook = new Excel.Workbook();
+                const stream = new Duplex();
+                stream.push(result.fileBuffer); // Convert the incoming file to a readable stream
+                stream.push(null);
+
+                return workbook.xlsx.read(stream)
+                  .then((excelFile: any) => {
+                    const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+
+                    expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
+                    expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
+                    expect(reportSheet.name).toEqual("Retrokey report");
+
+                    expect(reportSheet.getCell("B16").value).toEqual("Activity");
+                    // tslint:disable-next-line
+                    expect(reportSheet.getCell("B17").value).toEqual("Test");
+                    expect(reportSheet.getCell("B36").value).toEqual("Test");
+                    expect(reportSheet.getCell("B38").value).toEqual("Document Requests");
+                  });
+              });
+          });
         });
         it("should return a valid xlsx file as buffer with Time not Testing activity added in the report", () => {
             return retroGenerationService.generateRetroReport(activity)
@@ -100,10 +142,10 @@ describe("RetroGenerationService", () => {
                         .then((excelFile: any) => {
                             const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                             // Validate Time not Testing fields.
-                            expect(reportSheet.getCell("B18").value).to.equal("Time not Testing");
-                            expect(reportSheet.getCell("C18").value).to.equal("10:37:33");
-                            expect(reportSheet.getCell("D18").value).to.equal("10:43:33");
-                            expect(reportSheet.getCell("M18").value).to.contain("Reason for waiting: Break;");
+                            expect(reportSheet.getCell("B18").value).toEqual("Time not Testing");
+                            expect(reportSheet.getCell("C18").value).toEqual("10:37:33");
+                            expect(reportSheet.getCell("D18").value).toEqual("10:43:33");
+                            expect(reportSheet.getCell("M18").value).toContain("Reason for waiting: Break;");
                         });
                 });
         });
@@ -120,10 +162,10 @@ describe("RetroGenerationService", () => {
                 const excelFile = await workbook.xlsx.read(stream);
                 const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
-                expect(reportSheet.getCell("H17").value).to.equal(2);
-                expect(reportSheet.getCell("H18").value).to.equal(5);
-                expect(reportSheet.getCell("E17").value).to.equal("JY58FPP");
-                expect(reportSheet.getCell("E18").value).to.equal("12345");
+                expect(reportSheet.getCell("H17").value).toEqual(2);
+                expect(reportSheet.getCell("H18").value).toEqual(5);
+                expect(reportSheet.getCell("E17").value).toEqual("JY58FPP");
+                expect(reportSheet.getCell("E18").value).toEqual("12345");
 
             });
         });
@@ -135,13 +177,13 @@ describe("RetroGenerationService", () => {
                     retroGenerationService.adjustStaticTemplateForMoreThan11Tests(template, 15);
                     retroGenerationService.correctTemplateAfterAdjustment(template, 15);
                     const worksheet = template.workbook.getWorksheet(1);
-                    expect(worksheet.getCell("B28").border).to.not.eql(undefined);
-                    expect(worksheet.getCell("G31").border).to.not.eql(undefined);
-                    expect(worksheet.getCell("G13").border.right).to.not.eql(undefined);
-                    expect(worksheet.getCell("G39").border.right).to.not.eql(undefined);
-                    expect(worksheet.getCell("G35").master).to.eql(worksheet.getCell("E35"));
-                    expect(worksheet.getCell("F35").master).to.eql(worksheet.getCell("E35"));
-                    expect(worksheet.getCell("G39").master).to.eql(worksheet.getCell("F39"));
+                    expect(worksheet.getCell("B28").border).not.toEqual(undefined);
+                    expect(worksheet.getCell("G31").border).not.toEqual(undefined);
+                    expect(worksheet.getCell("G13").border.right).not.toEqual(undefined);
+                    expect(worksheet.getCell("G39").border.right).not.toEqual(undefined);
+                    expect(worksheet.getCell("G35").master).toEqual(worksheet.getCell("E35"));
+                    expect(worksheet.getCell("F35").master).toEqual(worksheet.getCell("E35"));
+                    expect(worksheet.getCell("G39").master).toEqual(worksheet.getCell("F39"));
                 });
         });
     });

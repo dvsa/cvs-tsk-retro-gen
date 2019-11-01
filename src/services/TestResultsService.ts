@@ -60,7 +60,7 @@ class TestResultsService {
      * into multiple records with a single test type
      * @param testResults
      */
-    private expandTestResults(testResults: any): any[] {
+    public expandTestResults(testResults: any): any[] {
         return testResults
         .map((testResult: any) => { // Separate each test type in a record to form multiple test results
             const splittedRecords: any[] = [];

@@ -42,7 +42,7 @@ class RetroGenerationService {
                 // Fetch and populate the Retrokey template
                 return this.fetchRetroTemplate(totalActivitiesLen)
                     .then((template: { workbook: Excel.Workbook, reportTemplate: any }) => {
-                        if (totalActivitiesLen.length > 11) {
+                        if (totalActivitiesLen > 11) {
                             this.adjustStaticTemplateForMoreThan11Tests(template, totalActivitiesLen);
                             this.correctTemplateAfterAdjustment(template, totalActivitiesLen);
                         }
