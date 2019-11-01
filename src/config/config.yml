@@ -5,11 +5,16 @@ invoke:
       endpoint: http://localhost:3013
     functions:
       testResults:
-          name: cvs-svc-test-results
-          mock: tests/resources/test-results-200-response.json
+        name: cvs-svc-test-results
+        mock: tests/resources/test-results-200-response.json
+      getActivities:
+        name: cvs-svc-activities
+        mock: tests/resources/wait-time-response.json
   remote:
     params:
       apiVersion: 2015-03-31
     functions:
       testResults:
-          name: test-results-${BRANCH}
+        name: test-results-${BRANCH}
+      getActivities:
+        name: activities-${BRANCH}

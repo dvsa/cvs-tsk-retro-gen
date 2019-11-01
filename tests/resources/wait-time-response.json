@@ -1,0 +1,8 @@
+{
+  "headers": {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": true
+  },
+  "statusCode": 200,
+  "body": "[{\"startTime\":\"2019-01-14T10:37:33.987Z\",\"endTime\":\"2019-01-14T10:43:33.987Z\",\"waitReason\":\"Break\"}, {\"startTime\":\"2019-01-14T10:52:33.987Z\",\"endTime\":\"2019-01-14T10:58:33.987Z\",\"waitReason\":\"Others\",\"notes\":\"Documentation Delay\"}]"
+}

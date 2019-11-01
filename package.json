@@ -20,35 +20,16 @@
     "coverage": "jest --testMatch=\"**/*.*Test.ts\" --coverage",
     "audit-dep": "npm audit"
   },
-  "nyc": {
-    "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx"
-    ],
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text-summary",
-      "html"
-    ],
-    "sourceMap": true,
-    "instrument": true
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "aws-lambda": "^0.1.2",
-    "aws-sdk": "^2.392.0",
-    "aws-xray-sdk": "^2.3.3",
-    "exceljs": "^1.7.0",
-    "form-data": "^2.3.2",
+    "aws-sdk": "^2.561.0",
+    "aws-xray-sdk": "^2.4.0",
+    "exceljs": "^1.15.0",
+    "form-data": "^2.5.1",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.23",
+    "moment-timezone": "^0.5.27",
     "node-fetch": "^2.2.0",
     "node-yaml": "^3.2.0",
     "reflect-metadata": "^0.1.13",
@@ -57,32 +38,31 @@
     "ts-node-register": "^1.0.0"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.17",
-    "@types/chai": "^4.1.7",
-    "@types/jest": "^24.0.15",
+    "@types/aws-lambda": "^8.10.34",
+    "@types/chai": "^4.2.4",
+    "@types/jest": "^24.0.21",
     "@types/jest-plugin-context": "^2.9.2",
     "@types/moment-timezone": "^0.5.12",
-    "@types/node": "^10.12.18",
-    "@types/request-promise": "^4.1.42",
-    "@types/sinon": "^7.0.13",
+    "@types/node": "^10.17.2",
+    "@types/request-promise": "^4.1.44",
+    "@types/sinon": "^7.5.0",
     "aws-lambda-mock-context": "^3.2.1",
     "chai": "^4.2.0",
-    "gulp": "^4.0.0",
+    "gulp": "^4.0.2",
     "husky": "^3.0.9",
     "jest": "^24.8.0",
     "jest-plugin-context": "^2.9.0",
-    "nyc": "^14.1.1",
-    "serverless": "^1.42.3",
+    "serverless": "^1.56.1",
     "serverless-dependency-invoke": "^0.0.10",
-    "serverless-offline": "^4.9.1",
+    "serverless-offline": "^5.12.0",
     "serverless-plugin-tracing": "^2.0.0",
-    "serverless-plugin-typescript": "^1.1.5",
-    "sinon": "^7.3.2",
-    "ts-jest": "^24.0.2",
-    "ts-node": "^8.3.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "sinon": "^7.5.0",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
     "ts-node-register": "^1.0.0",
-    "tslint": "^5.12.1",
-    "typescript": "^3.2.4"
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
   },
   "husky": {
     "hooks": {
