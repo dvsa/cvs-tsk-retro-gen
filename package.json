@@ -14,6 +14,7 @@
     "build:docker": "docker-compose -f docker-compose.yml up -d --build",
     "security-checks": "git secrets --scan && git log -p | scanrepo",
     "test": "BRANCH=local SLS_DEBUG=* jest --testMatch=\"**/*.unitTest.ts\" --coverage",
+    "test-i": "BRANCH=local jest --testMatch=\"**/*.intTest.ts\" --runInBand --passWithNoTests",
     "tslint": "tslint src/**/*.ts tests/**/*.ts",
     "prepush": "npm test && npm run tslint",
     "sonar-scanner": "npm run tslint && npm run coverage && sonar-scanner",
