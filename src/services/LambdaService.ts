@@ -1,7 +1,6 @@
 import {IInvokeConfig} from "../models";
 import {Configuration} from "../utils/Configuration";
 import {AWSError, config as AWSConfig, Lambda} from "aws-sdk";
-import {Service} from "../models/injector/ServiceDecorator";
 import {PromiseResult} from "aws-sdk/lib/request";
 /* tslint:disable */
 const AWSXRay = require("aws-xray-sdk");
@@ -10,7 +9,6 @@ const AWSXRay = require("aws-xray-sdk");
 /**
  * Service class for invoking external lambda functions
  */
-@Service()
 class LambdaService {
     public readonly lambdaClient: Lambda;
 

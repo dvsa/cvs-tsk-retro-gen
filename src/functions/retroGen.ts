@@ -1,11 +1,14 @@
 import {Callback, Context} from "aws-lambda";
-import {Injector} from "../models/injector/Injector";
 import {ManagedUpload} from "aws-sdk/clients/s3";
 import {RetroGenerationService} from "../services/RetroGenerationService";
 import { ERRORS } from "../assets/Enum";
 import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
 import {SharePointService} from "../services/SharePointService";
 import * as rp from "request-promise";
+import {TestResultsService} from "../services/TestResultsService";
+import {ActivitiesService} from "../services/ActivitiesService";
+import {LambdaService} from "../services/LambdaService";
+import {Lambda} from "aws-sdk";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -13,12 +16,12 @@ import * as rp from "request-promise";
  * @param context - λ Context
  * @param callback - callback function
  */
-const retroGen = async (event: any, context?: Context, callback?: Callback): Promise<void | ManagedUpload.SendData[]> => {
+const retroGen = async (event: any): Promise<void | ManagedUpload.SendData[]> => {
     if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
         console.error("ERROR: event is not defined.");
         throw new Error(ERRORS.EventIsEmpty);
     }
-    const retroService: RetroGenerationService = Injector.resolve<RetroGenerationService>(RetroGenerationService);
+    const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new Lambda())), new ActivitiesService(new LambdaService(new Lambda())));
     const retroUploadPromises: Array<Promise<ManagedUpload.SendData>> = [];
     const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
     const sharePointService = new SharePointService(rp);

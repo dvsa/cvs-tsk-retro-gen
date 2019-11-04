@@ -1,13 +1,11 @@
 import {IActivity, ITestResults, IActivitiesList} from "../models";
 import * as Excel from "exceljs";
 import * as path from "path";
-import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import {ActivitiesService} from "./ActivitiesService";
 import moment = require("moment-timezone");
 import {ActivityType, TimeZone, RetroConstants, STATUSES,TEST_RESULT_STATES, VEHICLE_TYPES} from "../assets/Enum";
 
-@Service()
 class RetroGenerationService {
     private readonly testResultsService: TestResultsService;
     private readonly activitiesService: ActivitiesService;

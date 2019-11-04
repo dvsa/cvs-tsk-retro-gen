@@ -143,8 +143,10 @@ describe("TestResultsService", () => {
     });
 
 context("RetroGenerationService", () => {
-        const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
-        const activitiesService: ActivitiesService = Injector.resolve<ActivitiesService>(ActivitiesService, [LambdaMockService]);
+        // @ts-ignore
+        const testResultsService: TestResultsService = new TestResultsService(new LambdaMockService());
+        // @ts-ignore
+        const activitiesService: ActivitiesService = new ActivitiesService(new LambdaMockService());
         const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
 
         LambdaMockService.populateFunctions();

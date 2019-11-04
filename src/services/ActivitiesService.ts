@@ -4,9 +4,7 @@ import {AWSError, Lambda} from "aws-sdk";
 import {LambdaService} from "./LambdaService";
 import {Configuration} from "../utils/Configuration";
 import moment from "moment";
-import {Service} from "../models/injector/ServiceDecorator";
 
-@Service()
 class ActivitiesService {
     private readonly lambdaClient: LambdaService;
     private readonly config: Configuration;
