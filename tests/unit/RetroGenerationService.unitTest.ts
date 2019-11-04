@@ -5,14 +5,15 @@ import * as fs from "fs";
 import * as path from "path";
 import {IActivity, ITestResults} from "../../src/models";
 import {Duplex} from "stream";
-import {Injector} from "../../src/models/injector/Injector";
 import {LambdaMockService} from "../models/LambdaMockService";
 import {ActivitiesService} from "../../src/services/ActivitiesService";
 import testResultResponse from "../resources/test-results-200-response.json";
 
 describe("RetroGenerationService", () => {
-    const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
-    const activitiesService: ActivitiesService = Injector.resolve<ActivitiesService>(ActivitiesService, [LambdaMockService]);
+    // @ts-ignore
+    const testResultsService: TestResultsService = new TestResultsService(new LambdaMockService());
+    // @ts-ignore
+    const activitiesService: ActivitiesService = new ActivitiesService(new LambdaMockService());
     const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
     LambdaMockService.populateFunctions();
     context("when generating a template", () => {
