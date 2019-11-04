@@ -1,5 +1,4 @@
 import {expect} from "chai";
-import {Injector} from "../../src/models/injector/Injector";
 import * as fs from "fs";
 import * as path from "path";
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
@@ -11,7 +10,8 @@ import {Duplex} from "stream";
 import {ActivitiesService} from "../../src/services/ActivitiesService";
 
 describe("TestResultsService", () => {
-        const testResultsService: TestResultsService = Injector.resolve<TestResultsService>(TestResultsService, [LambdaMockService]);
+        // @ts-ignore
+        const testResultsService: TestResultsService = new TestResultsService(new LambdaMockService());
         LambdaMockService.populateFunctions();
 
         context("when fetching the test results", () => {
