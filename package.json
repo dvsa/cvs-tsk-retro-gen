@@ -67,6 +67,7 @@
     "aws-lambda-mock-context": "^3.2.1",
     "chai": "^4.2.0",
     "gulp": "^4.0.0",
+    "husky": "^3.0.9",
     "jest": "^24.8.0",
     "jest-plugin-context": "^2.9.0",
     "nyc": "^14.1.1",
@@ -81,5 +82,10 @@
     "ts-node-register": "^1.0.0",
     "tslint": "^5.12.1",
     "typescript": "^3.2.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run security-checks"
+    }
   }
 }
