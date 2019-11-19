@@ -37,8 +37,7 @@
       "html"
     ],
     "sourceMap": true,
-    "instrument": true,
-    dsf
+    "instrument": true
   },
   "author": "",
   "license": "ISC",
