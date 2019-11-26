@@ -3,3 +3,7 @@ export enum VEHICLE_TYPES {
     HGV = "hgv",
     TRL = "trl"
 }
+
+export enum TEST_RESULT_STATES {
+    PASS = "pass"
+}

@@ -5,7 +5,7 @@ import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import moment = require("moment-timezone");
 import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../models/enums";
-import {VEHICLE_TYPES} from "../assets/Enum";
+import {TEST_RESULT_STATES, VEHICLE_TYPES} from "../assets/Enum";
 
 @Service()
 class RetroGenerationService {
@@ -86,8 +86,16 @@ class RetroGenerationService {
                     detailsTemplate.certificateNumber.value = testType.certificateNumber;
                     detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                     detailsTemplate.preparerId.value = testResult.preparerId;
-                    detailsTemplate.failureAdvisoryItemsQAIComments.value = defects + reasonForAbandoning + additionalCommentsAbandon + "Additional test type notes: " +
-                                                                            additionalTestTypeNotes + ";\r\n" + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
+                    detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
+                                                                            + reasonForAbandoning
+                                                                            + additionalCommentsAbandon
+                                                                            + (this.isPassingLECTestType(testType) ? (
+                                                                                "Modification type: " + testType.modType + "\r\n"
+                                                                                + "Fuel type: " + testType.fuelType + "\r\n"
+                                                                                + "Emission standards: " + testType.emissionStandard + "\r\n"
+                                                                            ) : "")
+                                                                            + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
+                                                                            + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
 
                 }
 
@@ -270,6 +278,16 @@ class RetroGenerationService {
         }
     }
 
+  /**
+   * Checks if testType is for an LEC type with a passing result
+   * @param testType
+   */
+  private isPassingLECTestType(testType: any): boolean {
+        const lecTestTypeIds = ["39", "44", "45"];
+        return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
+    }
 }
+
+
 
 export {RetroGenerationService};
