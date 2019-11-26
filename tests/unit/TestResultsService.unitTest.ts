@@ -289,5 +289,53 @@ context("RetroGenerationService", () => {
                 });
 
             });
+
+            context("with an LEC test type", () => {
+              it("populates failureAdvisoryItemsQAIComments with LEC specific fields", () => {
+                LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-response-LEC.json");
+                return retroGenerationService.generateRetroReport(activity)
+                  .then((result: any) => {
+                    const workbook = new Excel.Workbook();
+                    const stream = new Duplex();
+                    stream.push(result.fileBuffer);
+                    stream.push(null);
+
+                    return workbook.xlsx.read(stream)
+                      .then((excelFile: Excel.Workbook) => {
+                        const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                        // @ts-ignore
+                        const failureAdvisoryItemsQAICommentsTestValue: string = reportSheet.getCell("M17").value;
+                        const splitAdvisoriesOrNotes = failureAdvisoryItemsQAICommentsTestValue.split("\r\n");
+                        // @ts-ignore
+                        expect(splitAdvisoriesOrNotes[3]).to.equal("Modification type: P");
+                        expect(splitAdvisoriesOrNotes[4]).to.equal("Fuel type: Diesel");
+                        expect(splitAdvisoriesOrNotes[5]).to.equal("Emission standards: test emissions standard value");
+                      });
+                  });
+              });
+            });
+
+            context("with a non-LEC test type", () => {
+            it("does not show LEC fields", () => {
+              LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-200-prohibitionTrueTestTypesFalseDefects.json");
+              return retroGenerationService.generateRetroReport(activity)
+                .then((result: any) => {
+                  const workbook = new Excel.Workbook();
+                  const stream = new Duplex();
+                  stream.push(result.fileBuffer);
+                  stream.push(null);
+
+                  return workbook.xlsx.read(stream)
+                    .then((excelFile: Excel.Workbook) => {
+                      const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+                      const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
+                      // @ts-ignore
+                      const splitAdvisoriesOrNotes = failureAdvisoryItemsQAICommentsTestValue.split("\r\n");
+                      expect(splitAdvisoriesOrNotes[3]).not.to.equal("Modification type: P");
+                      expect(splitAdvisoriesOrNotes[4]).not.to.equal("Fuel type: Diesel");
+                      expect(splitAdvisoriesOrNotes[5]).not.to.equal("Emission standards: test emissions standard value");                    });
+                });
+            });
+          });
         });
 });
