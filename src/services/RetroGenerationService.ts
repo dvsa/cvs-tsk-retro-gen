@@ -76,7 +76,7 @@ class RetroGenerationService {
                     if (testType.reasonForAbandoning) {reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`; }
                     if (testType.additionalCommentsForAbandon) {additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`; }
                     if (this.isPassingLECTestType(testType)) {
-                        LECNotes = "Modification type: " + testType.modType + "\r\n"
+                        LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n"
                           + "Fuel type: " + testType.fuelType + "\r\n"
                           + "Emission standards: " + testType.emissionStandard + "\r\n";
                     }
