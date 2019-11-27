@@ -2,7 +2,7 @@ import {Callback, Context} from "aws-lambda";
 import {Injector} from "../models/injector/Injector";
 import {ManagedUpload} from "aws-sdk/clients/s3";
 import {RetroGenerationService} from "../services/RetroGenerationService";
-import { ERRORS } from "../models/enums";
+import { ERRORS } from "../assets/Enum";
 import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
 import {SharePointService} from "../services/SharePointService";
 import * as rp from "request-promise";
