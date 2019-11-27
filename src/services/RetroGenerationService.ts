@@ -4,7 +4,7 @@ import * as path from "path";
 import {Service} from "../models/injector/ServiceDecorator";
 import {TestResultsService} from "./TestResultsService";
 import moment = require("moment-timezone");
-import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../models/enums";
+import {ActivityType, TimeZone, RetroConstants, STATUSES} from "../assets/Enum";
 import {TEST_RESULT_STATES, VEHICLE_TYPES} from "../assets/Enum";
 
 @Service()
@@ -78,7 +78,7 @@ class RetroGenerationService {
                     if (this.isPassingLECTestType(testType)) {
                         LECNotes = "Modification type: " + testType.modType + "\r\n"
                           + "Fuel type: " + testType.fuelType + "\r\n"
-                          + "Emission standards: " + testType.emissionStandard + "\r\n"
+                          + "Emission standards: " + testType.emissionStandard + "\r\n";
                     }
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
