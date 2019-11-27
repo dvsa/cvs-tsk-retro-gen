@@ -55,6 +55,7 @@ class RetroGenerationService {
                     let defects: string = "";
                     let reasonForAbandoning: string = "";
                     let additionalCommentsAbandon: string = "";
+                    let LECNotes: string = "";
                     let defectsDetails: string = "";
                     let prsString: string = "";
 
@@ -74,7 +75,11 @@ class RetroGenerationService {
                     if (defectsDetails) {defects = `Defects: ${defectsDetails};\r\n`; }
                     if (testType.reasonForAbandoning) {reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`; }
                     if (testType.additionalCommentsForAbandon) {additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`; }
-
+                    if (this.isPassingLECTestType(testType)) {
+                        LECNotes = "Modification type: " + testType.modType + "\r\n"
+                          + "Fuel type: " + testType.fuelType + "\r\n"
+                          + "Emission standards: " + testType.emissionStandard + "\r\n"
+                    }
                     detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                     detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                     detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
@@ -89,11 +94,7 @@ class RetroGenerationService {
                     detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
                                                                             + reasonForAbandoning
                                                                             + additionalCommentsAbandon
-                                                                            + (this.isPassingLECTestType(testType) ? (
-                                                                                "Modification type: " + testType.modType + "\r\n"
-                                                                                + "Fuel type: " + testType.fuelType + "\r\n"
-                                                                                + "Emission standards: " + testType.emissionStandard + "\r\n"
-                                                                            ) : "")
+                                                                            + LECNotes
                                                                             + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
                                                                             + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
 
