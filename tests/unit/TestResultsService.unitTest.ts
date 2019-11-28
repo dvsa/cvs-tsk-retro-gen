@@ -1,4 +1,3 @@
-import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
@@ -83,10 +82,7 @@ describe("TestResultsService", () => {
                                 }
                             ];
 
-                            expect(result).to.eql(expectedResult);
-                        })
-                        .catch(() => {
-                            expect.fail();
+                            expect(result).toEqual(expectedResult);
                         });
                     });
                 });
@@ -95,13 +91,11 @@ describe("TestResultsService", () => {
                     it("should throw an error", () => {
                         LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/test-results-404-response.json");
 
+                        expect.assertions(2);
                         return testResultsService.getTestResults({})
-                        .then(() => {
-                            expect.fail();
-                        })
                         .catch((error: Error) => {
-                            expect(error.message).to.contain("Lambda invocation returned error");
-                            expect(error).to.be.instanceOf(Error);
+                            expect(error.message).toContain("Lambda invocation returned error");
+                            expect(error).toBeInstanceOf(Error);
                         });
                     });
                 });
@@ -113,11 +107,11 @@ describe("TestResultsService", () => {
                         return testResultsService.getTestResults({})
                             .then((result: any) => {
                                 const expectedResult: any = [];
-                                expect(result).to.eql(expectedResult);
+                                expect(result).toEqual(expectedResult);
                             })
                             .catch((error: Error) => {
-                                expect(error.message).to.contain("Lambda invocation returned bad data");
-                                expect(error).to.be.instanceOf(Error);
+                                expect(error.message).toContain("Lambda invocation returned bad data");
+                                expect(error).toBeInstanceOf(Error);
                             });
                     });
                 });
@@ -128,13 +122,11 @@ describe("TestResultsService", () => {
             it("should throw an error", () => {
                 LambdaMockService.purgeFunctions();
 
+                expect.assertions(2);
                 return testResultsService.getTestResults({})
-                .then(() => {
-                    expect.fail();
-                })
                 .catch((error: Error) => {
-                    expect(error.message).to.equal("Unsupported Media Type");
-                    expect(error).to.be.instanceOf(Error);
+                    expect(error.message).toEqual("Unsupported Media Type");
+                    expect(error).toBeInstanceOf(Error);
 
                     LambdaMockService.populateFunctions();
                 });
@@ -161,16 +153,16 @@ context("RetroGenerationService", () => {
                         const activityDetails: any = result.reportTemplate.activityDetails;
 
                         // Validate site visit details
-                        expect(siteVisitDetails.assesor._address).to.equal("C4");
-                        expect(siteVisitDetails.date._address).to.equal("F6");
-                        expect(siteVisitDetails.siteName._address).to.equal("F4");
-                        expect(siteVisitDetails.siteNumber._address).to.equal("F5");
-                        expect(siteVisitDetails.startTime._address).to.equal("C6");
-                        expect(siteVisitDetails.endTime._address).to.equal("C7");
-                        expect(siteVisitDetails.endDate._address).to.equal("F7");
+                        expect(siteVisitDetails.assesor._address).toEqual("C4");
+                        expect(siteVisitDetails.date._address).toEqual("F6");
+                        expect(siteVisitDetails.siteName._address).toEqual("F4");
+                        expect(siteVisitDetails.siteNumber._address).toEqual("F5");
+                        expect(siteVisitDetails.startTime._address).toEqual("C6");
+                        expect(siteVisitDetails.endTime._address).toEqual("C7");
+                        expect(siteVisitDetails.endDate._address).toEqual("F7");
 
                         // Validate activity details
-                        expect(activityDetails.length).to.equal(10);
+                        expect(activityDetails.length).toEqual(10);
                     });
                 });
             });
@@ -192,10 +184,10 @@ context("RetroGenerationService", () => {
                             .then((excelFile: Excel.Workbook) => {
                                 const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
-                                expect(excelFile.creator).to.equal("Commercial Vehicles Services Beta Team");
+                                expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
                                 // @ts-ignore
-                                expect(excelFile.company).to.equal("Drivers and Vehicles Standards Agency");
-                                expect(reportSheet.name).to.equal("Retrokey report");
+                                expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
+                                expect(reportSheet.name).toEqual("Retrokey report");
                             });
                     });
             });
@@ -215,8 +207,8 @@ context("RetroGenerationService", () => {
                                 .then((excelFile: Excel.Workbook) => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was issued");
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: none;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Prohibition was issued");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Additional test type notes: none;");
                                 });
                         });
                 });
@@ -239,8 +231,8 @@ context("RetroGenerationService", () => {
                                 .then((excelFile: Excel.Workbook) => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was not issued");
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: none;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Prohibition was not issued");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Additional test type notes: none;");
                                 });
                         });
                 });
@@ -262,8 +254,8 @@ context("RetroGenerationService", () => {
                                 .then((excelFile: Excel.Workbook) => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Prohibition was not issued");
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Prohibition was not issued");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Additional test type notes: Prohibition was issued;");
                                 });
                         });
                 });
@@ -287,8 +279,8 @@ context("RetroGenerationService", () => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
                                     // @ts-ignore
-                                    expect((failureAdvisoryItemsQAICommentsTestValue.match(/Prohibition was issued/g) || []).length).to.eql(2);
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional test type notes: Prohibition was issued;");
+                                    expect((failureAdvisoryItemsQAICommentsTestValue.match(/Prohibition was issued/g) || []).length).toEqual(2);
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Additional test type notes: Prohibition was issued;");
                                 });
                         });
                 });
@@ -310,12 +302,12 @@ context("RetroGenerationService", () => {
                                     const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
                                     // Validating first Wait activity
                                     let failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M18").value;
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Reason for waiting: Break;");
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.not.contain("Additional notes:");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Reason for waiting: Break;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).not.toContain("Additional notes:");
                                     // Validating second Wait activity
                                     failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M19").value;
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Reason for waiting: Others;");
-                                    expect(failureAdvisoryItemsQAICommentsTestValue).to.contain("Additional notes: Documentation Delay;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Reason for waiting: Others;");
+                                    expect(failureAdvisoryItemsQAICommentsTestValue).toContain("Additional notes: Documentation Delay;");
                                 });
                         });
                 });
@@ -339,9 +331,9 @@ context("RetroGenerationService", () => {
                         const failureAdvisoryItemsQAICommentsTestValue: string = reportSheet.getCell("M17").value;
                         const splitAdvisoriesOrNotes = failureAdvisoryItemsQAICommentsTestValue.split("\r\n");
                         // @ts-ignore
-                        expect(splitAdvisoriesOrNotes[3]).to.equal("Modification type: P");
-                        expect(splitAdvisoriesOrNotes[4]).to.equal("Fuel type: Diesel");
-                        expect(splitAdvisoriesOrNotes[5]).to.equal("Emission standards: test emissions standard value");
+                        expect(splitAdvisoriesOrNotes[3]).toEqual("Modification type: P");
+                        expect(splitAdvisoriesOrNotes[4]).toEqual("Fuel type: Diesel");
+                        expect(splitAdvisoriesOrNotes[5]).toEqual("Emission standards: test emissions standard value");
                       });
                   });
               });
@@ -363,9 +355,10 @@ context("RetroGenerationService", () => {
                       const failureAdvisoryItemsQAICommentsTestValue = reportSheet.getCell("M17").value;
                       // @ts-ignore
                       const splitAdvisoriesOrNotes = failureAdvisoryItemsQAICommentsTestValue.split("\r\n");
-                      expect(splitAdvisoriesOrNotes[3]).not.to.equal("Modification type: P");
-                      expect(splitAdvisoriesOrNotes[4]).not.to.equal("Fuel type: Diesel");
-                      expect(splitAdvisoriesOrNotes[5]).not.to.equal("Emission standards: test emissions standard value");                    });
+                      expect(splitAdvisoriesOrNotes[3]).not.toEqual("Modification type: P");
+                      expect(splitAdvisoriesOrNotes[4]).not.toEqual("Fuel type: Diesel");
+                      expect(splitAdvisoriesOrNotes[5]).not.toEqual("Emission standards: test emissions standard value");
+                    });
                 });
             });
           });
