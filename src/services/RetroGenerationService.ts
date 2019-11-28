@@ -4,7 +4,7 @@ import * as path from "path";
 import {TestResultsService} from "./TestResultsService";
 import {ActivitiesService} from "./ActivitiesService";
 import moment = require("moment-timezone");
-import {ActivityType, TimeZone, RetroConstants, STATUSES,TEST_RESULT_STATES, VEHICLE_TYPES} from "../assets/Enum";
+import {ActivityType, TimeZone, RetroConstants, STATUSES, TEST_RESULT_STATES, VEHICLE_TYPES} from "../assets/Enum";
 
 class RetroGenerationService {
     private readonly testResultsService: TestResultsService;
@@ -109,9 +109,13 @@ class RetroGenerationService {
                                 detailsTemplate.certificateNumber.value = testType.certificateNumber;
                                 detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                                 detailsTemplate.preparerId.value = testResult.preparerId;
-                                detailsTemplate.failureAdvisoryItemsQAIComments.value = defects + reasonForAbandoning + additionalCommentsAbandon+ LECNotes + "Additional test type notes: " +
-                                        additionalTestTypeNotes + ";\r\n" + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
-                                }
+                                detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
+                                                                                      + reasonForAbandoning
+                                                                                      + additionalCommentsAbandon
+                                                                                      + LECNotes
+                                                                                      + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
+                                                                                      + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
+                            }
                             if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                                     // Populate wait activities in the report
                                     const detailsTemplate: any = template.reportTemplate.activityDetails[i];
