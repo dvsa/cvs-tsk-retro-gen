@@ -1,9 +1,12 @@
 import {expect} from "chai";
 import {SharePointService} from "../../src/services/SharePointService";
 import sinon from "sinon";
+import mockConfig from "../util/mockConfig";
 
 
 describe("SharepointService", () => {
+    mockConfig();
+
     context("upload()", () => {
         context("when rp throws error", () => {
             const stub = sinon.fake.throws(new Error("Demo error"));

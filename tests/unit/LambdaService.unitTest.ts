@@ -1,8 +1,10 @@
 import { LambdaService } from "../../src/services/LambdaService";
 import {expect} from "chai";
 import {Lambda} from "aws-sdk";
+import mockConfig from "../util/mockConfig";
 
 describe("When LambdaService ", () => {
+    mockConfig();
     context("gets 404", () => {
         it("should return an empty 200", async () => {
             const service = new LambdaService(new Lambda());

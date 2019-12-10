@@ -1,10 +1,10 @@
 import {expect} from "chai";
 import {Configuration} from "../../src/utils/Configuration";
 import {IInvokeConfig, ISPConfig} from "../../src/models";
+import mockConfig from "../util/mockConfig";
 
-
-// tslint:disable-next-line:only-arrow-functions
-describe("ConfigurationUtil", function() {
+describe("ConfigurationUtil", () => {
+    mockConfig();
     const config: Configuration = Configuration.getInstance();
     const branch = process.env.BRANCH;
 

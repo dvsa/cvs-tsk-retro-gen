@@ -1,8 +1,10 @@
 import {expect} from "chai";
 import {SharePointAuthenticationService} from "../../src/services/SharePointAuthenticationService";
 import sinon from "sinon";
+import mockConfig from "../util/mockConfig";
 
 describe("SharepointAuthenticationService", () => {
+    mockConfig();
     context("getToken()", () => {
         context("when rp throws error",  () => {
             const stub = sinon.fake.throws(new Error("Demo error"));

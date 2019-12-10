@@ -8,8 +8,10 @@ import {Duplex} from "stream";
 import {LambdaMockService} from "../models/LambdaMockService";
 import {ActivitiesService} from "../../src/services/ActivitiesService";
 import testResultResponse from "../resources/test-results-200-response.json";
+import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {
+    mockConfig();
     // @ts-ignore
     const testResultsService: TestResultsService = new TestResultsService(new LambdaMockService());
     // @ts-ignore
