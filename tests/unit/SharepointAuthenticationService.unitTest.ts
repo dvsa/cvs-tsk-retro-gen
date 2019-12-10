@@ -1,4 +1,3 @@
-import {expect} from "chai";
 import {SharePointAuthenticationService} from "../../src/services/SharePointAuthenticationService";
 import sinon from "sinon";
 import mockConfig from "../util/mockConfig";
@@ -11,11 +10,11 @@ describe("SharepointAuthenticationService", () => {
             const mock = {post: stub};
             const sharePointAuthenticationService = new SharePointAuthenticationService(mock);
             it("should throw error", async () => {
+                expect.assertions(1);
                 try {
                     await sharePointAuthenticationService.getToken();
-                    expect.fail();
                 } catch (error) {
-                    expect(error.message).to.equal("Demo error");
+                    expect(error.message).toEqual("Demo error");
                 }
             });
         });
@@ -24,12 +23,9 @@ describe("SharepointAuthenticationService", () => {
             const mock = {post: stub};
             it("should not throw error", async () => {
                 const sharePointAuthenticationService = new SharePointAuthenticationService(mock);
-                try {
-                    const response = await sharePointAuthenticationService.getToken();
-                    expect(response).to.eql("Good response");
-                } catch (e) {
-                    expect.fail();
-                }
+                expect.assertions(1);
+                const response = await sharePointAuthenticationService.getToken();
+                expect(response).toEqual("Good response");
             });
         });
     });
