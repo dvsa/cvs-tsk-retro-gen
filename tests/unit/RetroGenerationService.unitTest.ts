@@ -1,26 +1,26 @@
 import {RetroGenerationService} from "../../src/services/RetroGenerationService";
 import * as Excel from "exceljs";
 import {TestResultsService} from "../../src/services/TestResultsService";
-import * as fs from "fs";
-import * as path from "path";
 import {IActivity, ITestResults} from "../../src/models";
 import {Duplex} from "stream";
-import {LambdaMockService} from "../models/LambdaMockService";
 import {ActivitiesService} from "../../src/services/ActivitiesService";
 import testResultResponse from "../resources/test-results-200-response.json";
+import hgvTrlResults from "../resources/hgv-trl-test-results.json";
+import activities from "../resources/wait-time-response.json";
+import queueEvent from "../resources/queue-event.json";
 import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {
     mockConfig();
-    // @ts-ignore
-    const testResultsService: TestResultsService = new TestResultsService(new LambdaMockService());
-    // @ts-ignore
-    const activitiesService: ActivitiesService = new ActivitiesService(new LambdaMockService());
-    const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
-    LambdaMockService.populateFunctions();
+
     context("when generating a template", () => {
-        context("and providing the number of rows the template will contain", () => {
+      const lambdaServiceMock = jest.fn();
+      const testResultsService: TestResultsService = new TestResultsService(new lambdaServiceMock());
+      const activitiesService: ActivitiesService = new ActivitiesService(new lambdaServiceMock());
+      const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
+      context("and providing the number of rows the template will contain", () => {
             it("should return a template containing the provided number of rows", () => {
+
                 return retroGenerationService.fetchRetroTemplate(10)
                     .then((result: any) => {
                         const siteVisitDetails: any = result.reportTemplate.siteVisitDetails;
@@ -65,10 +65,20 @@ describe("RetroGenerationService", () => {
     });
 
     context("when generating a report", () => {
-        const event: any = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../resources/queue-event.json"), "utf8"));
-        const activity: IActivity = JSON.parse(event.Records[0].body);
+        const activity: IActivity = JSON.parse(queueEvent.Records[0].body);
 
         it("should return a valid xlsx file as buffer", () => {
+          const testResultsServiceMock = jest.fn().mockImplementation(() =>  {
+            return {
+              getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body)))
+            };
+          });
+          const activitiesServiceMock = jest.fn().mockImplementation(() =>  {
+            return {
+              getActivities: () => Promise.resolve(JSON.parse(activities.body))
+            };
+          });
+          const retroGenerationService: RetroGenerationService = new RetroGenerationService(new testResultsServiceMock(), new activitiesServiceMock());
             return retroGenerationService.generateRetroReport(activity)
                 .then((result: any) => {
                     const workbook = new Excel.Workbook();
@@ -134,7 +144,18 @@ describe("RetroGenerationService", () => {
           });
         });
         it("should return a valid xlsx file as buffer with Time not Testing activity added in the report", () => {
-            return retroGenerationService.generateRetroReport(activity)
+          const testResultsServiceMock = jest.fn().mockImplementation(() =>  {
+            return {
+              getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body)))
+            };
+          });
+          const activitiesServiceMock = jest.fn().mockImplementation(() =>  {
+            return {
+              getActivities: () => Promise.resolve(JSON.parse(activities.body))
+            };
+          });
+          const retroGenerationService: RetroGenerationService = new RetroGenerationService(new testResultsServiceMock(), new activitiesServiceMock());
+          return retroGenerationService.generateRetroReport(activity)
                 .then((result: any) => {
                     const workbook = new Excel.Workbook();
                     const stream = new Duplex();
@@ -155,39 +176,53 @@ describe("RetroGenerationService", () => {
 
         context("and testResults returns HGVs and TRLs", () => {
             it("should return a valid xlsx file as buffer with trailerId populated for trl vehicles and noOfAxles populated for hgv and trl vehicles", async () => {
-                LambdaMockService.changeResponse("cvs-svc-test-results", "tests/resources/hgv-trl-test-results.json");
-                const output = await retroGenerationService.generateRetroReport(activity);
-                const workbook = new Excel.Workbook();
-                const stream = new Duplex();
-                stream.push(output.fileBuffer); // Convert the incoming file to a readable stream
-                stream.push(null);
+              const testResultsServiceMock = jest.fn().mockImplementation(() =>  {
+                return {
+                  getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(hgvTrlResults.body)))
+                };
+              });
+              const activitiesServiceMock = jest.fn().mockImplementation(() =>  {
+                return {
+                  getActivities: () => Promise.resolve(JSON.parse(activities.body))
+                };
+              });
+              const retroGenerationService: RetroGenerationService = new RetroGenerationService(new testResultsServiceMock(), new activitiesServiceMock());
+              const output = await retroGenerationService.generateRetroReport(activity);
+              const workbook = new Excel.Workbook();
+              const stream = new Duplex();
+              stream.push(output.fileBuffer); // Convert the incoming file to a readable stream
+              stream.push(null);
 
-                const excelFile = await workbook.xlsx.read(stream);
-                const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+              const excelFile = await workbook.xlsx.read(stream);
+              const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
 
-                expect(reportSheet.getCell("H17").value).toEqual(2);
-                expect(reportSheet.getCell("H18").value).toEqual(5);
-                expect(reportSheet.getCell("E17").value).toEqual("JY58FPP");
-                expect(reportSheet.getCell("E18").value).toEqual("12345");
+              expect(reportSheet.getCell("H17").value).toEqual(2);
+              expect(reportSheet.getCell("H18").value).toEqual(5);
+              expect(reportSheet.getCell("E17").value).toEqual("JY58FPP");
+              expect(reportSheet.getCell("E18").value).toEqual("12345");
 
             });
         });
     });
     context("adjustStaticTemplateForMoreThan11Tests", () => {
         it("", async () => {
-            retroGenerationService.fetchRetroTemplate(15)
-                .then((template: { workbook: Excel.Workbook, reportTemplate: any}) => {
-                    retroGenerationService.adjustStaticTemplateForMoreThan11Tests(template, 15);
-                    retroGenerationService.correctTemplateAfterAdjustment(template, 15);
-                    const worksheet = template.workbook.getWorksheet(1);
-                    expect(worksheet.getCell("B28").border).not.toEqual(undefined);
-                    expect(worksheet.getCell("G31").border).not.toEqual(undefined);
-                    expect(worksheet.getCell("G13").border.right).not.toEqual(undefined);
-                    expect(worksheet.getCell("G39").border.right).not.toEqual(undefined);
-                    expect(worksheet.getCell("G35").master).toEqual(worksheet.getCell("E35"));
-                    expect(worksheet.getCell("F35").master).toEqual(worksheet.getCell("E35"));
-                    expect(worksheet.getCell("G39").master).toEqual(worksheet.getCell("F39"));
-                });
+          const lambdaServiceMock = jest.fn();
+          const testResultsService: TestResultsService = new TestResultsService(new lambdaServiceMock());
+          const activitiesService: ActivitiesService = new ActivitiesService(new lambdaServiceMock());
+          const retroGenerationService: RetroGenerationService = new RetroGenerationService(testResultsService, activitiesService);
+          retroGenerationService.fetchRetroTemplate(15)
+            .then((template: { workbook: Excel.Workbook, reportTemplate: any}) => {
+                retroGenerationService.adjustStaticTemplateForMoreThan11Tests(template, 15);
+                retroGenerationService.correctTemplateAfterAdjustment(template, 15);
+                const worksheet = template.workbook.getWorksheet(1);
+                expect(worksheet.getCell("B28").border).not.toEqual(undefined);
+                expect(worksheet.getCell("G31").border).not.toEqual(undefined);
+                expect(worksheet.getCell("G13").border.right).not.toEqual(undefined);
+                expect(worksheet.getCell("G39").border.right).not.toEqual(undefined);
+                expect(worksheet.getCell("G35").master).toEqual(worksheet.getCell("E35"));
+                expect(worksheet.getCell("F35").master).toEqual(worksheet.getCell("E35"));
+                expect(worksheet.getCell("G39").master).toEqual(worksheet.getCell("F39"));
+            });
         });
     });
 });
