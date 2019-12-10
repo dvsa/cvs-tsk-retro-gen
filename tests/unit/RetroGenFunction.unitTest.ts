@@ -3,12 +3,14 @@ import {RetroGenerationService} from "../../src/services/RetroGenerationService"
 import {retroGen} from "../../src/functions/retroGen";
 import mockContext from "aws-lambda-mock-context";
 import sinon from "sinon";
+import mockConfig from "../util/mockConfig";
 const sandbox = sinon.createSandbox();
 
-const ctx = mockContext();
 
 
 describe("Retro Gen Function", () => {
+    const ctx = mockContext();
+    mockConfig();
     context("Receiving an empty event (of various types)", () => {
         it("should throw errors (event = {})", async () => {
             try {
