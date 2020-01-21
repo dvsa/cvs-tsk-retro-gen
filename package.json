@@ -34,7 +34,7 @@
     "node-yaml": "^4.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
-    "js-yaml": "latest"
+    "js-yaml": "^3.13.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",
