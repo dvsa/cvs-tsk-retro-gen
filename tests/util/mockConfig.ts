@@ -1,4 +1,4 @@
-import {Configuration} from "../../src/utils/Configuration";
+import { Configuration } from "../../src/utils/Configuration";
 
 const mockConfig = () => {
   // @ts-ignore

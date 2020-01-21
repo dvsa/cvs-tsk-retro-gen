@@ -1,4 +1,4 @@
-import {TestResultsService} from "../../src/services/TestResultsService";
+import { TestResultsService } from "../../src/services/TestResultsService";
 
 import mockConfig from "../util/mockConfig";
 
@@ -95,17 +95,19 @@ describe("TestResultsService", () => {
           const lambdaMock = jest.fn().mockImplementation(() => {
             return {
               invoke: jest.fn().mockResolvedValue(""),
-              validateInvocationResponse: () => { throw new Error(`Lambda invocation returned error: 404 ${testResults404}`); }
+              validateInvocationResponse: () => {
+                throw new Error(`Lambda invocation returned error: 404 ${testResults404}`);
+              }
             };
           });
           const testResultsService: TestResultsService = new TestResultsService(new lambdaMock());
 
           expect.assertions(2);
           return testResultsService.getTestResults({})
-          .catch((error: Error) => {
+            .catch((error: Error) => {
               expect(error.message).toContain("Lambda invocation returned error");
               expect(error).toBeInstanceOf(Error);
-          });
+            });
         });
       });
 
@@ -114,19 +116,21 @@ describe("TestResultsService", () => {
           const lambdaMock = jest.fn().mockImplementation(() => {
             return {
               invoke: jest.fn().mockResolvedValue(""),
-              validateInvocationResponse: () => { throw new Error(`Lambda invocation returned bad data: ${JSON.stringify(testResults200empty)}.`); }
+              validateInvocationResponse: () => {
+                throw new Error(`Lambda invocation returned bad data: ${JSON.stringify(testResults200empty)}.`);
+              }
             };
           });
           const testResultsService: TestResultsService = new TestResultsService(new lambdaMock());
 
           return testResultsService.getTestResults({})
             .then((result: any) => {
-                const expectedResult: any = [];
-                expect(result).toEqual(expectedResult);
+              const expectedResult: any = [];
+              expect(result).toEqual(expectedResult);
             })
             .catch((error: Error) => {
-                expect(error.message).toContain("Lambda invocation returned bad data");
-                expect(error).toBeInstanceOf(Error);
+              expect(error.message).toContain("Lambda invocation returned bad data");
+              expect(error).toBeInstanceOf(Error);
             });
         });
       });
@@ -137,17 +141,17 @@ describe("TestResultsService", () => {
     it("should throw an error", () => {
       const lambdaMock = jest.fn().mockImplementation(() => {
         return {
-          invoke: () => Promise.reject( new Error("Unsupported Media Type") ),
+          invoke: () => Promise.reject(new Error("Unsupported Media Type")),
         };
       });
       const testResultsService: TestResultsService = new TestResultsService(new lambdaMock());
       expect.assertions(2);
       return testResultsService.getTestResults({})
-      .catch((error: Error) => {
+        .catch((error: Error) => {
           expect(error.message).toEqual("Unsupported Media Type");
           expect(error).toBeInstanceOf(Error);
 
-      });
+        });
     });
   });
 });
