@@ -26,17 +26,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.607.0",
+    "aws-sdk": "^2.608.0",
     "aws-xray-sdk": "^2.5.0",
     "exceljs": "1.7.0",
+    "js-yaml": "^3.13.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "node-yaml": "^4.0.1",
     "request": "^2.88.0",
-    "request-promise": "^4.2.5",
-    "js-yaml": "^3.13.1"
+    "request-promise": "^4.2.5"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.40",
     "@types/chai": "^4.2.7",
     "@types/jest": "^24.9.0",
     "@types/jest-plugin-context": "^2.9.2",
@@ -48,7 +49,7 @@
     "aws-lambda-mock-context": "^3.2.1",
     "chai": "^4.2.0",
     "gulp": "^4.0.2",
-    "husky": "^4.0.10",
+    "husky": "^4.2.0",
     "jest": "^24.9.0",
     "jest-plugin-context": "^2.9.0",
     "serverless": "^1.61.3",
@@ -56,7 +57,7 @@
     "serverless-offline": "^5.12.1",
     "serverless-plugin-tracing": "^2.0.0",
     "serverless-plugin-typescript": "^1.1.9",
-    "sinon": "^8.1.0",
+    "sinon": "^8.1.1",
     "ts-jest": "^24.3.0",
     "tslint": "^5.20.1",
     "typescript": "^3.7.5"
