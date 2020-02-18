@@ -79,49 +79,60 @@ class RetroGenerationService {
                       prsString = "";
                     }
 
-                    defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
-                      testType.defects[key].deficiencyCategory + prsString +
-                      (testType.defects[key].additionalInformation.notes ? (", " +
-                        testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
-                  }
-                  if (defectsDetails) {
-                    defects = `Defects: ${defectsDetails};\r\n`;
-                  }
-                  if (testType.reasonForAbandoning) {
-                    reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
-                  }
-                  if (testType.additionalCommentsForAbandon) {
-                    additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
-                  }
-                  if (this.isPassingLECTestType(testType)) {
-                    LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n"
-                      + "Fuel type: " + testType.fuelType + "\r\n"
-                      + "Emission standards: " + testType.emissionStandard + "\r\n";
-                  }
-                  detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.vrm.value = (testResult.vehicleType === VEHICLE_TYPES.TRL) ? testResult.trailerId : testResult.vrm;
-                  detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = (testType.testCode).toUpperCase();
-                  detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
-                  detailsTemplate.result.value = testType.testResult;
-                  detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                  detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
-                  detailsTemplate.preparerId.value = testResult.preparerId;
-                  detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
-                    + reasonForAbandoning
-                    + additionalCommentsAbandon
-                    + LECNotes
-                    + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
-                    + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
-                }
-                if (event.activityType === ActivityType.TIME_NOT_TESTING) {
-                  // Populate wait activities in the report
-                  const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const waitActivityResult: any = event.activity;
-                  let waitReasons: string = "";
-                  let additionalNotes: string = "";
+                                    defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
+                                        testType.defects[key].deficiencyCategory + prsString +
+                                        (testType.defects[key].additionalInformation.notes ? (", " +
+                                            testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
+                                }
+                                if (defectsDetails) {
+                                        defects = `Defects: ${defectsDetails};\r\n`;
+                                    }
+                                if (testType.reasonForAbandoning) {
+                                        reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+                                    }
+                                if (testType.additionalCommentsForAbandon) {
+                                        additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+                                    }
+                                if (this.isPassingLECTestType(testType)) {
+                                  LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n"
+                                    + "Fuel type: " + testType.fuelType + "\r\n"
+                                    + "Emission standards: " + testType.emissionStandard + "\r\n";
+                                }
+                                let customDefects = "";
+                                if (testType.customDefects) {
+                                    testType.customDefects.forEach((customDefect: any) => {
+                                        customDefects = customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefect.defectNotes + "\r\n";
+                                    });
+                                }
+
+                                const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber :
+                                    testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
+
+                                detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
+                                detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                                detailsTemplate.vrm.value = (testResult.vehicleType === VEHICLE_TYPES.TRL) ? testResult.trailerId : testResult.vrm;
+                                detailsTemplate.chassisNumber.value = testResult.vin;
+                                detailsTemplate.testType.value = (testType.testCode).toUpperCase();
+                                detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
+                                detailsTemplate.result.value = testType.testResult;
+                                detailsTemplate.certificateNumber.value = certificateNumber;
+                                detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+                                detailsTemplate.preparerId.value = testResult.preparerId;
+                                detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
+                                                                                      + reasonForAbandoning
+                                                                                      + additionalCommentsAbandon
+                                                                                      + LECNotes
+                                                                                      + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
+                                                                                      + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
+                                                                                      + customDefects ? "\r\nCustom defects: " + customDefects : "";
+                            }
+                            if (event.activityType === ActivityType.TIME_NOT_TESTING) {
+                                    // Populate wait activities in the report
+                                    const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+                                    const waitActivityResult: any = event.activity;
+                                    let waitReasons: string = "";
+                                    let additionalNotes: string = "";
 
                   if (waitActivityResult.waitReason) {
                     waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
@@ -365,9 +376,14 @@ class RetroGenerationService {
    * @param testType
    */
   private isPassingLECTestType(testType: any): boolean {
-    const lecTestTypeIds = ["39", "44", "45"];
-    return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
-  }
+        const lecTestTypeIds = ["39", "44", "45"];
+        return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
+    }
+
+    private isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType: any) {
+      const testTypeIds = ["142", "175"];
+      return testTypeIds.includes(testType.testTypeId);
+    }
 }
 
 
