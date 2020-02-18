@@ -101,7 +101,7 @@ class RetroGenerationService {
                                 let customDefects = "";
                                 if (testType.customDefects) {
                                     testType.customDefects.forEach((customDefect: any) => {
-                                        customDefects = customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefect.defectNotes + "\r\n";
+                                        customDefects = customDefects + customDefect.referenceNumber + " " + customDefect.defectName + " " + (customDefect.defectNotes) ? customDefect.defectNotes : "" + "\r\n";
                                     });
                                 }
 
@@ -125,7 +125,7 @@ class RetroGenerationService {
                                                                                       + LECNotes
                                                                                       + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
                                                                                       + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
-                                                                                      + customDefects ? "\r\nCustom defects: " + customDefects : "";
+                                                                                      + customDefects ? "\r\nCustom defects:\r\n" + customDefects : "";
                             }
                             if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                                     // Populate wait activities in the report
