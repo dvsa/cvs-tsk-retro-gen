@@ -102,7 +102,7 @@ class RetroGenerationService {
                                 if (testType.customDefects) {
                                     testType.customDefects.forEach((customDefect: any) => {
                                         const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
-                                        customDefects = customDefects + customDefect.referenceNumber + " " + customDefect.defectName + customDefectNotes + "\r\n";
+                                        customDefects = customDefects + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
                                     });
                                 }
 
