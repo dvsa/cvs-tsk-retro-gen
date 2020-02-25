@@ -98,12 +98,13 @@ class RetroGenerationService {
                                     + "Fuel type: " + testType.fuelType + "\r\n"
                                     + "Emission standards: " + testType.emissionStandard + "\r\n";
                                 }
-                  let customDefects = "";
+                  let customDefectsStr = "";
                   if (testType.customDefects) {
                                     testType.customDefects.forEach((customDefect: any) => {
                                         const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
-                                        customDefects = customDefects + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
+                                        customDefectsStr = customDefectsStr + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
                                     });
+                                    customDefectsStr = "\r\nCustom defects:\r\n" + customDefectsStr;
                                 }
 
                   const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber :
@@ -126,7 +127,7 @@ class RetroGenerationService {
                                                                                       + LECNotes
                                                                                       + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
                                                                                       + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
-                                                                                      + customDefects ? "\r\nCustom defects:\r\n" + customDefects : "";
+                                                                                      + customDefectsStr;
                             }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                                     // Populate wait activities in the report
