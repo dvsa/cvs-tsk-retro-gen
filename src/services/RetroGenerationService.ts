@@ -121,12 +121,12 @@ class RetroGenerationService {
                   detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
-                                                                                      + reasonForAbandoning
-                                                                                      + additionalCommentsAbandon
-                                                                                      + LECNotes
-                                                                                      + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
-                                                                                      + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
-                                                                                      + customDefectsStr;
+                    + reasonForAbandoning
+                    + additionalCommentsAbandon
+                    + LECNotes
+                    + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
+                    + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
+                    + customDefectsStr;
                 }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                   // Populate wait activities in the report
