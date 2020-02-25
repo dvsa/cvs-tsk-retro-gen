@@ -102,9 +102,9 @@ class RetroGenerationService {
                   if (testType.customDefects) {
                     testType.customDefects.forEach((customDefect: any) => {
                       const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
-                      customDefectsStr = customDefectsStr + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
+                      customDefectsStr = customDefectsStr + customDefect.referenceNumber + "," + customDefect.defectName + "," + customDefectNotes + "\r\n";
                     });
-                    customDefectsStr = "\r\nCustom defects:\r\n" + customDefectsStr;
+                    customDefectsStr = customDefectsStr;
                   }
 
                   const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber : testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
@@ -121,12 +121,12 @@ class RetroGenerationService {
                   detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
+                    + customDefectsStr
                     + reasonForAbandoning
                     + additionalCommentsAbandon
                     + LECNotes
                     + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
-                    + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
-                    + customDefectsStr;
+                    + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "");
                 }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                   // Populate wait activities in the report
