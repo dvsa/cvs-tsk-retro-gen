@@ -80,35 +80,34 @@ class RetroGenerationService {
                     }
 
                     defectsDetails = defectsDetails + " " + testType.defects[key].deficiencyRef + " (" +
-                                        testType.defects[key].deficiencyCategory + prsString +
-                                        (testType.defects[key].additionalInformation.notes ? (", " +
-                                            testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
-                                }
+                      testType.defects[key].deficiencyCategory + prsString +
+                      (testType.defects[key].additionalInformation.notes ? (", " +
+                        testType.defects[key].additionalInformation.notes) : "") + (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
+                  }
                   if (defectsDetails) {
-                                        defects = `Defects: ${defectsDetails};\r\n`;
-                                    }
+                    defects = `Defects: ${defectsDetails};\r\n`;
+                  }
                   if (testType.reasonForAbandoning) {
-                                        reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
-                                    }
+                    reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+                  }
                   if (testType.additionalCommentsForAbandon) {
-                                        additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
-                                    }
+                    additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+                  }
                   if (this.isPassingLECTestType(testType)) {
-                                  LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n"
-                                    + "Fuel type: " + testType.fuelType + "\r\n"
-                                    + "Emission standards: " + testType.emissionStandard + "\r\n";
-                                }
+                    LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n"
+                      + "Fuel type: " + testType.fuelType + "\r\n"
+                      + "Emission standards: " + testType.emissionStandard + "\r\n";
+                  }
                   let customDefectsStr = "";
                   if (testType.customDefects) {
-                                    testType.customDefects.forEach((customDefect: any) => {
-                                        const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
-                                        customDefectsStr = customDefectsStr + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
-                                    });
-                                    customDefectsStr = "\r\nCustom defects:\r\n" + customDefectsStr;
-                                }
+                    testType.customDefects.forEach((customDefect: any) => {
+                      const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
+                      customDefectsStr = customDefectsStr + customDefect.referenceNumber + " " + customDefect.defectName + " " + customDefectNotes + "\r\n";
+                    });
+                    customDefectsStr = "\r\nCustom defects:\r\n" + customDefectsStr;
+                  }
 
-                  const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber :
-                                    testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
+                  const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber : testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
 
                   detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                   detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
@@ -128,25 +127,23 @@ class RetroGenerationService {
                                                                                       + "Additional test type notes: " + additionalTestTypeNotes + ";\r\n"
                                                                                       + (testType.additionalNotesRecorded ? (testType.additionalNotesRecorded + ";") : "")
                                                                                       + customDefectsStr;
-                            }
+                }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
-                                    // Populate wait activities in the report
-                                    const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                                    const waitActivityResult: any = event.activity;
-                                    let waitReasons: string = "";
-                                    let additionalNotes: string = "";
-
-                                    if (waitActivityResult.waitReason) {
+                  // Populate wait activities in the report
+                  const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+                  const waitActivityResult: any = event.activity;
+                  let waitReasons: string = "";
+                  let additionalNotes: string = "";
+                  if (waitActivityResult.waitReason) {
                     waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
                   }
-                                    if (waitActivityResult.notes) {
+                  if (waitActivityResult.notes) {
                     additionalNotes = `Additional notes: ${waitActivityResult.notes};\r\n`;
                   }
-
-                                    detailsTemplate.activity.value = (waitActivityResult.activityType === "visit") ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
-                                    detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                                    detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                                    detailsTemplate.failureAdvisoryItemsQAIComments.value = waitReasons + additionalNotes;
+                  detailsTemplate.activity.value = (waitActivityResult.activityType === "visit") ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
+                  detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.failureAdvisoryItemsQAIComments.value = waitReasons + additionalNotes;
                 }
               }
 
