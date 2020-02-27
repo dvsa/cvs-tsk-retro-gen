@@ -104,7 +104,9 @@ class RetroGenerationService {
                       const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
                       customDefectsStr = customDefectsStr + customDefect.referenceNumber + "," + customDefect.defectName + "," + customDefectNotes + "\r\n";
                     });
-                    customDefectsStr = customDefectsStr;
+                    if (!defectsDetails) {
+                      customDefectsStr = "Defects: " + customDefectsStr;
+                    }
                   }
 
                   const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber : testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
