@@ -104,7 +104,7 @@ class RetroGenerationService {
                       const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
                       customDefectsStr = customDefectsStr + customDefect.referenceNumber + "," + customDefect.defectName + "," + customDefectNotes + "\r\n";
                     });
-                    if (!defectsDetails) {
+                    if (!defectsDetails && customDefectsStr) {
                       customDefectsStr = "Defects: " + customDefectsStr;
                     }
                   }
