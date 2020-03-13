@@ -98,6 +98,19 @@ class RetroGenerationService {
                       + "Fuel type: " + testType.fuelType + "\r\n"
                       + "Emission standards: " + testType.emissionStandard + "\r\n";
                   }
+                  let customDefectsStr = "";
+                  if (testType.customDefects) {
+                    testType.customDefects.forEach((customDefect: any) => {
+                      const customDefectNotes = (customDefect.defectNotes) ? customDefect.defectNotes : "";
+                      customDefectsStr = customDefectsStr + customDefect.referenceNumber + "," + customDefect.defectName + "," + customDefectNotes + "\r\n";
+                    });
+                    if (!defectsDetails && customDefectsStr) {
+                      customDefectsStr = "Defects: " + customDefectsStr;
+                    }
+                  }
+
+                  const certificateNumber = (!this.isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType)) ? testType.certificateNumber : testType.certificateNumber + " (Annual test), " + testType.secondaryCertificateNumber + " (COIF)";
+
                   detailsTemplate.activity.value = (activity.activityType === "visit") ? ActivityType.TEST : ActivityType.WAIT_TIME;
                   detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
@@ -106,10 +119,11 @@ class RetroGenerationService {
                   detailsTemplate.testType.value = (testType.testCode).toUpperCase();
                   detailsTemplate.seatsAndAxles.value = (testResult.vehicleType === VEHICLE_TYPES.PSV) ? testResult.numberOfSeats : testResult.noOfAxles;
                   detailsTemplate.result.value = testType.testResult;
-                  detailsTemplate.certificateNumber.value = testType.certificateNumber;
+                  detailsTemplate.certificateNumber.value = certificateNumber;
                   detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value = defects
+                    + customDefectsStr
                     + reasonForAbandoning
                     + additionalCommentsAbandon
                     + LECNotes
@@ -122,14 +136,12 @@ class RetroGenerationService {
                   const waitActivityResult: any = event.activity;
                   let waitReasons: string = "";
                   let additionalNotes: string = "";
-
                   if (waitActivityResult.waitReason) {
                     waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
                   }
                   if (waitActivityResult.notes) {
                     additionalNotes = `Additional notes: ${waitActivityResult.notes};\r\n`;
                   }
-
                   detailsTemplate.activity.value = (waitActivityResult.activityType === "visit") ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
                   detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
@@ -365,9 +377,18 @@ class RetroGenerationService {
    * @param testType
    */
   private isPassingLECTestType(testType: any): boolean {
-    const lecTestTypeIds = ["39", "44", "45"];
-    return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
-  }
+        const lecTestTypeIds = ["39", "44", "45"];
+        return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
+    }
+
+  /**
+   * Checks if testType is a COIF with annual test or COIF with annual test retest
+   * @param testType
+   */
+    private isTestTypeCoifWithAnnualTestOrCoifWithAnnualTestRetest(testType: any) {
+      const testTypeIds = ["142", "175"];
+      return testTypeIds.includes(testType.testTypeId);
+    }
 }
 
 
