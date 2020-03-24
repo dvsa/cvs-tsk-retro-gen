@@ -7,7 +7,7 @@ update_configs:
   version_requirement_updates: increase_versions
   default_reviewers:
   - "KHodderDVSA"
-  - "oalexandru
+  - "oalexandru"
   default_assignees:
   - "KHodderDVSA"
   - "oalexandru"
