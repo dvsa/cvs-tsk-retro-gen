@@ -7,6 +7,7 @@ import * as rp from "request-promise";
 import { TestResultsService } from "../services/TestResultsService";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
+import { DataMigrationService } from "../services/DataMigrationService";
 import { Lambda } from "aws-sdk";
 
 /**
@@ -26,16 +27,20 @@ const retroGen = async (event: any): Promise<void | ManagedUpload.SendData[]> =>
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const visit: any = JSON.parse(record.body);
-    const retroUploadPromise = retroService.generateRetroReport(visit)
-      .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
-        const tokenResponse = await sharepointAuthenticationService.getToken();
-        const accessToken = JSON.parse(tokenResponse).access_token;
-        const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
-        return sharePointResponse;
-      });
+    if (record.eventSource === "aws:s3") {
+      if (record.eventName === "ObjectCreated:Put") {retroUploadPromises.push(DataMigrationService.uploadDocumentToSharepoint(record, sharepointAuthenticationService, sharePointService)); }
+    } else {
+      const visit: any = JSON.parse(record.body);
+      const retroUploadPromise = retroService.generateRetroReport(visit)
+        .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
+          const tokenResponse = await sharepointAuthenticationService.getToken();
+          const accessToken = JSON.parse(tokenResponse).access_token;
+          const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
+          return sharePointResponse;
+        });
 
-    retroUploadPromises.push(retroUploadPromise);
+      retroUploadPromises.push(retroUploadPromise);
+    }
   });
 
   return Promise.all(retroUploadPromises)

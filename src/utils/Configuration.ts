@@ -1,6 +1,6 @@
 // @ts-ignore
 import * as yml from "node-yaml";
-import { IInvokeConfig, ISPConfig } from "../models";
+import { IInvokeConfig, ISPConfig, IS3Config } from "../models";
 import SecretsManager, { GetSecretValueRequest, GetSecretValueResponse } from "aws-sdk/clients/secretsmanager";
 import * as AWSXray from "aws-xray-sdk";
 import { safeLoad } from "js-yaml";
@@ -107,6 +107,21 @@ class Configuration {
       }
     }
     return secret;
+  }
+
+  /**
+   * Retrieves the S3 config
+   * @returns IS3Config
+   */
+  public getS3Config(): IS3Config {
+    if (!this.config.s3) {
+      throw new Error("DynamoDB config is not defined in the config file.");
+    }
+
+    // Not defining BRANCH will default to local
+    const env: string = (!process.env.BRANCH || process.env.BRANCH === "local") ? "local" : "remote";
+
+    return this.config.s3[env];
   }
 
 }
