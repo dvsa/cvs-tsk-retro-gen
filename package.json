@@ -35,7 +35,7 @@
     "exceljs": "1.7.0",
     "js-yaml": "^3.13.1",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.27",
+    "moment-timezone": "^0.5.33",
     "node-yaml": "^4.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.5"
