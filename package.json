@@ -34,7 +34,7 @@
     "aws-xray-sdk": "^2.5.0",
     "exceljs": "1.7.0",
     "js-yaml": "^3.13.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.1",
     "moment-timezone": "^0.5.27",
     "node-yaml": "^4.0.1",
     "request": "^2.88.0",
