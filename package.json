@@ -58,7 +58,7 @@
     "husky": "^4.2.0",
     "jest": "^24.9.0",
     "jest-plugin-context": "^2.9.0",
-    "serverless": "^2.19.0",
+    "serverless": "^2.45.2",
     "serverless-dependency-invoke": "^0.0.10",
     "serverless-offline": "^5.12.1",
     "serverless-plugin-tracing": "^2.0.0",
