@@ -27,5 +27,36 @@ describe("SharepointService", () => {
         expect(response).toEqual("Good response");
       });
     });
+
+    context("When uploading a large file", () => {
+      it("should create the upload session and successfully put the file to the generated url ", async () => {
+        const mock = {
+          put: jest.fn().mockReturnValue("Success response"),
+          post: jest.fn().mockReturnValue(Promise.resolve({uploadUrl: "test"}))
+        };
+        const sharepointService = new SharePointService(mock);
+        expect.assertions(2);
+        const response = await sharepointService.uploadLargeFile("testFileName", Buffer.from("test string"), "testToken", "testFolder");
+        expect(mock.put).toHaveBeenCalledTimes(1);
+        expect(response).toEqual("Success response");
+      });
+    });
+
+    context("When uploading", () => {
+      it("should should fail if the session was not created successfully", async () => {
+        const mock = {
+          put: jest.fn().mockReturnValue("Success response"),
+          post: jest.fn().mockReturnValue(Promise.reject("Error response"))
+        };
+
+        const sharepointService = new SharePointService(mock);
+        expect.assertions(1);
+        try {
+          await sharepointService.uploadLargeFile("testFileName", Buffer.from("test string"), "testToken", "testFolder");
+        } catch (error) {
+          expect(error).toBe("Error response");
+        }
+      });
+    });
   });
 });

@@ -61,4 +61,8 @@ interface IInvokeConfig {
   functions: { testResults: { name: string }, techRecords: { name: string; mock: string }, getActivities: { name: string } };
 }
 
-export { ISPConfig, IActivity, IInvokeConfig, ITestType, ITestResults, IActivitiesList };
+interface IS3Config {
+  endpoint: string;
+}
+
+export { ISPConfig, IActivity, IInvokeConfig, ITestType, ITestResults, IActivitiesList, IS3Config };

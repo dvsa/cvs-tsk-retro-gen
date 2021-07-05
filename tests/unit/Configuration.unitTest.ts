@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { Configuration } from "../../src/utils/Configuration";
-import { IInvokeConfig, ISPConfig } from "../../src/models";
+import {IInvokeConfig, IS3Config, ISPConfig} from "../../src/models";
 import mockConfig from "../util/mockConfig";
 
 describe("ConfigurationUtil", () => {
@@ -12,6 +12,13 @@ describe("ConfigurationUtil", () => {
     it("should return config instance", () => {
       const configInstance: any = config.getConfig();
       expect(configInstance).not.eql(undefined);
+    });
+  });
+
+  context("when calling .getS3Config()", () => {
+    it("should return config instance", async () => {
+      const s3config: IS3Config = await config.getS3Config();
+      expect(s3config).not.eql(undefined);
     });
   });
 
