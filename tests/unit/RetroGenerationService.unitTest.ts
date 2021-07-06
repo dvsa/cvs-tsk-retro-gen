@@ -5,6 +5,7 @@ import { IActivity, ITestResults } from "../../src/models";
 import { Duplex } from "stream";
 import { ActivitiesService } from "../../src/services/ActivitiesService";
 import testResultResponse from "../resources/test-results-200-response.json";
+import testResultCustomDefectsResponse from "../resources/test-results-200-custom-defects.json";
 import hgvTrlResults from "../resources/hgv-trl-test-results.json";
 import activities from "../resources/wait-time-response.json";
 import queueEvent from "../resources/queue-event.json";
@@ -201,6 +202,49 @@ describe("RetroGenerationService", () => {
         expect(reportSheet.getCell("E17").value).toEqual("JY58FPP");
         expect(reportSheet.getCell("E18").value).toEqual("12345");
 
+      });
+    });
+
+    context("with custom defects", () => {
+      it("should show custom defects in Failure/Advisory, QA & I,comments column", () => {
+        const testResult = JSON.parse(testResultCustomDefectsResponse.body)[0];
+        const myTests: ITestResults[] = [];
+        for (let i = 0; i < 20; i++) {
+          myTests.push(testResult);
+        }
+        const mockTestResultsService = jest.fn().mockImplementation(() => {
+          return {
+            getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(myTests))
+          };
+        });
+        const mockActivitiesService = jest.fn().mockImplementation(() => {
+          return {
+            getActivities: () => Promise.resolve([])
+          };
+        });
+        const retroGenSvc = new RetroGenerationService(new mockTestResultsService(), new mockActivitiesService());
+        return retroGenSvc.generateRetroReport(activity)
+          .then((result: any) => {
+            const workbook = new Excel.Workbook();
+            const stream = new Duplex();
+            stream.push(result.fileBuffer); // Convert the incoming file to a readable stream
+            stream.push(null);
+
+            return workbook.xlsx.read(stream)
+              .then((excelFile: any) => {
+                const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+
+                expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
+                expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
+                expect(reportSheet.name).toEqual("Retrokey report");
+
+                expect(reportSheet.getCell("M17").value).toContain("Custom Defects:");
+                // tslint:disable-next-line
+                // expect(reportSheet.getCell("B17").value).toEqual("Test");
+                // expect(reportSheet.getCell("B36").value).toEqual("Test");
+                // expect(reportSheet.getCell("B38").value).toEqual("Document Requests");
+              });
+          });
       });
     });
   });
