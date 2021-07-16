@@ -27,32 +27,30 @@ class ActivitiesService {
       Payload: JSON.stringify({
         httpMethod: "GET",
         path: "/activities/details",
-        queryStringParameters: params
+        queryStringParameters: params,
       }),
     };
-    return this.lambdaClient.invoke(invokeParams)
-      .then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
-        const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
-        const activityResults: any[] = JSON.parse(payload.body); // Response conversion
-        console.log(`Wait Activities: ${activityResults.length}`);
+    return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+      const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
+      const activityResults: any[] = JSON.parse(payload.body); // Response conversion
+      console.log(`Wait Activities: ${activityResults.length}`);
 
-        // Sort results by startTime
-        activityResults.sort((first: any, second: any): number => {
-          if (moment(first.startTime).isBefore(second.startTime)) {
-            return -1;
-          }
+      // Sort results by startTime
+      activityResults.sort((first: any, second: any): number => {
+        if (moment(first.startTime).isBefore(second.startTime)) {
+          return -1;
+        }
 
-          if (moment(first.startTime).isAfter(second.startTime)) {
-            return 1;
-          }
+        if (moment(first.startTime).isAfter(second.startTime)) {
+          return 1;
+        }
 
-          return 0;
-        });
-
-        return activityResults;
+        return 0;
       });
-  }
 
+      return activityResults;
+    });
+  }
 }
 
 export { ActivitiesService };

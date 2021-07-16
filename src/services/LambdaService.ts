@@ -25,8 +25,7 @@ class LambdaService {
    * @param params - InvocationRequest params
    */
   public async invoke(params: Lambda.Types.InvocationRequest): Promise<PromiseResult<Lambda.Types.InvocationResponse, AWSError>> {
-    return this.lambdaClient.invoke(params)
-      .promise();
+    return this.lambdaClient.invoke(params).promise();
   }
 
   /**

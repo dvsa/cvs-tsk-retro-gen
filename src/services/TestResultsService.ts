@@ -27,30 +27,28 @@ class TestResultsService {
       Payload: JSON.stringify({
         httpMethod: "GET",
         path: "/test-results/getTestResultsByTesterStaffId",
-        queryStringParameters: params
+        queryStringParameters: params,
       }),
     };
-    return this.lambdaClient.invoke(invokeParams)
-      .then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
-        const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
-        const testResults: any[] = JSON.parse(payload.body); // Response conversion
+    return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+      const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
+      const testResults: any[] = JSON.parse(payload.body); // Response conversion
 
+      // Sort results by testEndTimestamp
+      testResults.sort((first: any, second: any): number => {
+        if (moment(first.testEndTimestamp).isBefore(second.testEndTimestamp)) {
+          return -1;
+        }
 
-        // Sort results by testEndTimestamp
-        testResults.sort((first: any, second: any): number => {
-          if (moment(first.testEndTimestamp).isBefore(second.testEndTimestamp)) {
-            return -1;
-          }
+        if (moment(first.testEndTimestamp).isAfter(second.testEndTimestamp)) {
+          return 1;
+        }
 
-          if (moment(first.testEndTimestamp).isAfter(second.testEndTimestamp)) {
-            return 1;
-          }
-
-          return 0;
-        });
-
-        return this.expandTestResults(testResults);
+        return 0;
       });
+
+      return this.expandTestResults(testResults);
+    });
   }
 
   /**
@@ -60,7 +58,8 @@ class TestResultsService {
    */
   public expandTestResults(testResults: any): any[] {
     return testResults
-      .map((testResult: any) => { // Separate each test type in a record to form multiple test results
+      .map((testResult: any) => {
+        // Separate each test type in a record to form multiple test results
         const splittedRecords: any[] = [];
         const templateRecord: any = Object.assign({}, testResult);
         Object.assign(templateRecord, {});

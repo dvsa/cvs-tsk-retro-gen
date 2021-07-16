@@ -1,7 +1,7 @@
 declare enum StationType {
   ATF = "atf",
   GVTS = "gvts",
-  HQ = "hq"
+  HQ = "hq",
 }
 
 interface ISPConfig {
@@ -57,8 +57,8 @@ interface IActivitiesList {
 }
 
 interface IInvokeConfig {
-  params: { apiVersion: string; endpoint?: string; };
-  functions: { testResults: { name: string }, techRecords: { name: string; mock: string }, getActivities: { name: string } };
+  params: { apiVersion: string; endpoint?: string };
+  functions: { testResults: { name: string }; techRecords: { name: string; mock: string }; getActivities: { name: string } };
 }
 
 export { ISPConfig, IActivity, IInvokeConfig, ITestType, ITestResults, IActivitiesList };

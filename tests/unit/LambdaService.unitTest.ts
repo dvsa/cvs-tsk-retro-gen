@@ -7,7 +7,7 @@ describe("When LambdaService ", () => {
   context("gets 404", () => {
     it("should return an empty 200", async () => {
       const service = new LambdaService(new Lambda());
-      const payload = await service.validateInvocationResponse({ Payload: "{\"statusCode\": 404, \"body\": \"No resource match the selected criteria\"}", StatusCode: 200 });
+      const payload = await service.validateInvocationResponse({ Payload: '{"statusCode": 404, "body": "No resource match the selected criteria"}', StatusCode: 200 });
       expect(payload.statusCode).toEqual(200);
       expect(payload.body).toEqual("[]");
     });
@@ -16,7 +16,7 @@ describe("When LambdaService ", () => {
     it("should throw an error", async () => {
       const service = new LambdaService(new Lambda());
       try {
-        const payload = await service.validateInvocationResponse({ Payload: "{\"statusCode\": 503, \"body\": \"Service unavailable\"}", StatusCode: 200 });
+        const payload = await service.validateInvocationResponse({ Payload: '{"statusCode": 503, "body": "Service unavailable"}', StatusCode: 200 });
       } catch (e) {
         expect(e.message).toContain("Lambda invocation returned error");
         expect(e).toBeInstanceOf(Error);
@@ -80,6 +80,5 @@ describe("When LambdaService ", () => {
         }
       });
     });
-
   });
 });
