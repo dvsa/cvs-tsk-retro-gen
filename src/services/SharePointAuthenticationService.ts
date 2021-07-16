@@ -26,8 +26,8 @@ class SharePointAuthenticationService {
         grant_type: "client_credentials",
         client_id: this.spConfig.azure_sharepoint_client_id,
         client_secret: this.spConfig.azure_sharepoint_client_secret,
-        resource: "https://graph.microsoft.com/"
-      }
+        resource: "https://graph.microsoft.com/",
+      },
     };
     return this.request.post(tokenParams);
   }

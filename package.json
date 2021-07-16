@@ -4,7 +4,7 @@
   "description": "Retrokey Report generation",
   "main": "handler.js",
   "engines": {
-    "node": "10.18.1",
+    "node": "14.*",
     "npm": "5.6.0"
   },
   "scripts": {
@@ -17,15 +17,15 @@
     "build:copy": "find src -type f \\( -name \"*.yml\" -or -name \"*.json\" -or -name \"*.xlsx\" \\) | cpio -pdm .build && find tests -type f \\( -name \"*.yml\" -or -name \"*.json\" \\)  | cpio -pdm .build",
     "build:docker": "docker-compose -f docker-compose.yml up -d --build",
     "security-checks": "git secrets --scan && git log -p | scanrepo",
-    "test": "BRANCH=local SLS_DEBUG=* jest --testMatch=\"**/*.unitTest.ts\"",
-    "test-i": "BRANCH=local jest --testMatch=\"**/*.intTest.ts\" --runInBand --passWithNoTests",
-    "tslint": "tslint src/**/*.ts tests/**/*.ts",
-    "prepush": "npm test && npm run tslint",
-    "sonar-scanner": "npm run tslint && npm run coverage && sonar-scanner",
+    "test": "npm run test:unit -- --coverage",
+    "test:unit": "BRANCH=local SLS_DEBUG=* jest --testMatch=\"**/*.unitTest.ts\" --runInBand --detectOpenHandles",
+    "test-i": "echo 'nothing to do'",
+    "lint": "tslint src/**/*.ts tests/**/*.ts --fix",
+    "format": "prettier --write .",
+    "prepush": "npm test && npm run build && npm run test-i",
+    "sonar-scanner": "sonar-scanner",
     "package": "mkdir -p ${ZIP_NAME} && cp package.json package-lock.json ${ZIP_NAME}/ && cp -r .build/src/* ${ZIP_NAME}/ && cd ${ZIP_NAME} && npm ci --production && rm package.json package-lock.json &&  zip -qr ../${ZIP_NAME}.zip .",
-    "coverage": "npm run test -- --coverage",
-    "auditL:check": "npm audit --json | node_modules/.bin/audit-filter --nsp-config=.nsprc --audit=-",
-    "audit-dep": "npm audit",
+    "audit": "npm audit",
     "tools-setup": "echo 'nothing to do'"
   },
   "author": "",
@@ -58,6 +58,7 @@
     "husky": "^4.2.0",
     "jest": "^24.9.0",
     "jest-plugin-context": "^2.9.0",
+    "prettier": "^2.3.2",
     "serverless": "^2.45.2",
     "serverless-dependency-invoke": "^0.0.10",
     "serverless-offline": "^5.12.1",
@@ -70,7 +71,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run security-checks && npm run tslint && npm run build",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run security-checks && npm run audit && npm run lint && format",
       "pre-push": "npm run prepush"
     }
   }

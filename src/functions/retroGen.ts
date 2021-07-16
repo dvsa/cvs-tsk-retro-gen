@@ -27,22 +27,20 @@ const retroGen = async (event: any): Promise<void | ManagedUpload.SendData[]> =>
 
   event.Records.forEach((record: any) => {
     const visit: any = JSON.parse(record.body);
-    const retroUploadPromise = retroService.generateRetroReport(visit)
-      .then(async (generationServiceResponse: { fileName: string, fileBuffer: Buffer }) => {
-        const tokenResponse = await sharepointAuthenticationService.getToken();
-        const accessToken = JSON.parse(tokenResponse).access_token;
-        const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
-        return sharePointResponse;
-      });
+    const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
+      const tokenResponse = await sharepointAuthenticationService.getToken();
+      const accessToken = JSON.parse(tokenResponse).access_token;
+      const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
+      return sharePointResponse;
+    });
 
     retroUploadPromises.push(retroUploadPromise);
   });
 
-  return Promise.all(retroUploadPromises)
-    .catch((error: any) => {
-      console.error(error);
-      throw error;
-    });
+  return Promise.all(retroUploadPromises).catch((error: any) => {
+    console.error(error);
+    throw error;
+  });
 };
 
 export { retroGen };

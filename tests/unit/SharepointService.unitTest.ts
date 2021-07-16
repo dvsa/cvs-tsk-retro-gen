@@ -1,7 +1,6 @@
 import { SharePointService } from "../../src/services/SharePointService";
 import mockConfig from "../util/mockConfig";
 
-
 describe("SharepointService", () => {
   mockConfig();
 

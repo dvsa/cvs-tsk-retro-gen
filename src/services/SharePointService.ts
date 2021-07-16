@@ -24,12 +24,11 @@ class SharePointService {
     }
     const sharepointParams: OptionsWithUri = {
       method: "PUT",
-      uri: `https://graph.microsoft.com/v1.0/sites/${this.spConfig.sharepoint_site_collection}/drives/${this.spConfig.sharepoint_drive_id}/` +
-        `items/${this.spConfig.sharepoint_parent_id}:/${fileName}:/content`,
+      uri: `https://graph.microsoft.com/v1.0/sites/${this.spConfig.sharepoint_site_collection}/drives/${this.spConfig.sharepoint_drive_id}/` + `items/${this.spConfig.sharepoint_parent_id}:/${fileName}:/content`,
       headers: {
-        Authorization: "Bearer " + accessToken
+        Authorization: "Bearer " + accessToken,
       },
-      body: fileBuffer
+      body: fileBuffer,
     };
     return this.request.put(sharepointParams);
   }

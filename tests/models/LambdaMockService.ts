@@ -14,9 +14,7 @@ interface IMockFunctions {
  * Service for mocking the LambdaService
  */
 class LambdaMockService {
-
   private static responses: IMockFunctions[] = [];
-
 
   /**
    * Populates the mock function responses
@@ -63,7 +61,7 @@ class LambdaMockService {
         message: "Unsupported Media Type",
         code: "UnknownError",
         statusCode: 415,
-        retryable: false
+        retryable: false,
       });
 
       throw error;
@@ -74,16 +72,15 @@ class LambdaMockService {
     Object.assign(response, {
       data: {
         StatusCode: 200,
-        Payload: payload
-      }
+        Payload: payload,
+      },
     });
 
     return {
       $response: response,
       StatusCode: 200,
-      Payload: payload
+      Payload: payload,
     };
-
   }
 
   /**
@@ -107,7 +104,6 @@ class LambdaMockService {
 
     return payload;
   }
-
 }
 
 export { LambdaMockService };

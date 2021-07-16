@@ -18,9 +18,6 @@
     "completed-docs": [true, "methods"]
   },
   "linterOptions": {
-    "exclude": [
-      "dependencies",
-      "node_modules"
-    ]
+    "exclude": ["dependencies", "node_modules"]
   }
 }
