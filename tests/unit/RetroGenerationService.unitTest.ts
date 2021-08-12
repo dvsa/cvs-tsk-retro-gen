@@ -8,15 +8,15 @@ import testResultResponse from "../resources/test-results-200-response.json";
 import hgvTrlResults from "../resources/hgv-trl-test-results.json";
 import activities from "../resources/wait-time-response.json";
 import queueEvent from "../resources/queue-event.json";
-import mockConfig from "../util/mockConfig";
+// import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {
-  beforeAll(() => jest.setTimeout(10000));
+  beforeAll(() => jest.setTimeout(60000));
   afterAll(() => {
     jest.setTimeout(5000);
     return new Promise((r) => setTimeout(r, 0));
   });
-  mockConfig();
+  // mockConfig();
 
   context("when generating a template", () => {
     const lambdaServiceMock = jest.fn();
@@ -77,7 +77,10 @@ describe("RetroGenerationService", () => {
       console.log(activities.body);
       const testResultsServiceMock = jest.fn().mockImplementation(() => {
         return {
-          getTestResults: () => Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body))),
+          getTestResults: () => {
+            return Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body)))
+          }
+          // getTestResults: () => Promise.resolve(JSON.parse(testResultResponse.body))
         };
       });
       const activitiesServiceMock = jest.fn().mockImplementation(() => {
