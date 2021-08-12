@@ -78,8 +78,8 @@ describe("RetroGenerationService", () => {
       const testResultsServiceMock = jest.fn().mockImplementation(() => {
         return {
           getTestResults: () => {
-            return Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body)))
-          }
+            return Promise.resolve(TestResultsService.prototype.expandTestResults(JSON.parse(testResultResponse.body)));
+          },
           // getTestResults: () => Promise.resolve(JSON.parse(testResultResponse.body))
         };
       });
