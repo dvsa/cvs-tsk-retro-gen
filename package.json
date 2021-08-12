@@ -42,6 +42,8 @@
     "request-promise": "^4.2.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
     "@types/aws-lambda": "^8.10.40",
     "@types/chai": "^4.2.7",
     "@types/jest": "^24.9.0",

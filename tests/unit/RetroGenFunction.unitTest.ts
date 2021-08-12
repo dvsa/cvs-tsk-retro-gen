@@ -8,6 +8,12 @@ import sinon from "sinon";
 const sandbox = sinon.createSandbox();
 
 describe("Retro Gen Function", () => {
+  beforeAll(() => {
+    jest.setTimeout(10000);
+  });
+  afterAll(() => {
+    jest.setTimeout(5000);
+  });
   context("Receiving an empty event (of various types)", () => {
     it("should throw errors (event = {})", async () => {
       try {
