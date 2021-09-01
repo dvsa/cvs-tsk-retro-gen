@@ -2,7 +2,7 @@ service: cvs-svc-tsk-retro-gen
 
 provider:
   name: aws
-  runtime: nodejs24.x
+  runtime: nodejs14.x
   tracing:
     lambda: true
   iam:
