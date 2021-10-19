@@ -32,7 +32,7 @@ class ActivitiesService {
     };
 
     // TODO fail fast if activityType is not 'visit' as per CVSB-19853 - this code will be removed as part of the 'wait time epic'
-    if (invokeParams.Payload.queryStringParameters.activityType !== "visit") {
+    if (params.activityType !== "visit") {
       return Promise.resolve([]);
     }
 
