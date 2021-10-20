@@ -30,6 +30,12 @@ class ActivitiesService {
         queryStringParameters: params,
       }),
     };
+
+    // TODO fail fast if activityType is not 'visit' as per CVSB-19853 - this code will be removed as part of the 'wait time epic'
+    if (params.activityType !== "visit") {
+      return Promise.resolve([]);
+    }
+
     return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const activityResults: any[] = JSON.parse(payload.body); // Response conversion
