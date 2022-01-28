@@ -1,7 +1,0 @@
-{
-  "Records": [
-    {
-      "body": " {\n      \"id\": \"1ddc5821-3e6f-493a-80e1-30727dcce0fb\",\n      \"testerStaffId\": \"10000007\",\n      \"testerName\": \"CVS Automation7\",\n      \"testStationName\": \"Abshire-Kub\",\n      \"activityDay\": \"2021-10-15\",\n      \"testStationPNumber\": \"09-4129632\",\n      \"testStationType\": \"gvts\",\n      \"startTime\": \"2021-10-15T02:58:55.453Z\",\n      \"activityType\": \"visit\",\n      \"testerEmail\": \"CVS.Automation7@dvsatest-cloud.uk\",\n      \"endTime\": \"2021-10-15T03:01:16.469Z\",\n      \"testStationEmail\": \"automation@nonprod.cvs.dvsacloud.uk\"\n    }"
-    }
-  ]
-}
