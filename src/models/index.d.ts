@@ -2,6 +2,7 @@ declare enum StationType {
   ATF = "atf",
   GVTS = "gvts",
   HQ = "hq",
+  POTF = "potf"
 }
 
 interface ISPConfig {
