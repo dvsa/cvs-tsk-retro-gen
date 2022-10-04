@@ -72,13 +72,27 @@ class RetroGenerationService {
         if (defects && defects.length) {
           defects.forEach((defect: any) => {
             prsString = defect.prs ? ", PRS" : "";
-            defectDetails = defectDetails + "\r\n" + defect.deficiencyRef + " (" + defect.deficiencyCategory + prsString + (defect.additionalInformation.notes ? ", " + defect.additionalInformation.notes : "") + (defect.prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
+            defectDetails = defectDetails +
+              "\r\n" +
+              defect.deficiencyRef +
+              " (" +
+              defect.deficiencyCategory +
+              prsString +
+              (defect.additionalInformation.notes ? ", " + defect.additionalInformation.notes : "") +
+              (defect.prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
+              ")";
           });
           defectsString = `Defects: ${defectDetails};\r\n`;
         }
         if (customDefects && customDefects.length) {
           customDefects.forEach((customDefect: any) => {
-            customDefectDetails = customDefectDetails + "\r\n" + customDefect.referenceNumber + " (" + customDefect.defectName + (customDefect.defectNotes ? ", " + customDefect.defectNotes : "") + ")";
+            customDefectDetails = customDefectDetails +
+              "\r\n" +
+              customDefect.referenceNumber +
+              " (" +
+              customDefect.defectName +
+              (customDefect.defectNotes ? ", " + customDefect.defectNotes : "")
+              + ")";
           });
           customDefectsString = `Custom Defects: ${customDefectDetails};\r\n`;
         }
