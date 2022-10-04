@@ -19,151 +19,123 @@ class RetroGenerationService {
    * Generates the Retrokey report for a given activity
    * @param activity - activity for which to generate the report
    */
-  public generateRetroReport(activity: IActivity): Promise<any> {
-    return this.testResultsService
-      .getTestResults({
-        testerStaffId: activity.testerStaffId,
-        fromDateTime: activity.startTime,
-        toDateTime: activity.endTime,
-        testStationPNumber: activity.testStationPNumber,
-        testStatus: STATUSES.SUBMITTED,
-      })
-      .then((testResults: any) => {
-        // Fetch 'wait' activities for this visit activity
-        return this.activitiesService
-          .getActivities({
-            testerStaffId: activity.testerStaffId,
-            fromStartTime: activity.startTime,
-            toStartTime: activity.endTime,
-            testStationPNumber: activity.testStationPNumber,
-            activityType: "wait",
-          })
-          .then((waitActivities: any[]) => {
-            const totalActivitiesLen = testResults.length + waitActivities.length;
-            // Fetch and populate the Retrokey template
-            return this.fetchRetroTemplate(totalActivitiesLen).then((template: { workbook: Excel.Workbook; reportTemplate: any }) => {
-              if (totalActivitiesLen > 11) {
-                this.adjustStaticTemplateForMoreThan11Tests(template, totalActivitiesLen);
-                this.correctTemplateAfterAdjustment(template, totalActivitiesLen);
-              }
+  public async generateRetroReport(activity: IActivity): Promise<any> {
+    const testResults = await this.testResultsService.getTestResults({
+      testerStaffId: activity.testerStaffId,
+      fromDateTime: activity.startTime,
+      toDateTime: activity.endTime,
+      testStationPNumber: activity.testStationPNumber,
+      testStatus: STATUSES.SUBMITTED,
+    });
+    const waitActivities = await this.activitiesService.getActivities({
+      testerStaffId: activity.testerStaffId,
+      fromStartTime: activity.startTime,
+      toStartTime: activity.endTime,
+      testStationPNumber: activity.testStationPNumber,
+      activityType: "wait",
+    });
+    const totalActivitiesLength = testResults.length + waitActivities.length;
+    const template = await this.fetchRetroTemplate(totalActivitiesLength);
+    if (totalActivitiesLength > 11) {
+      this.adjustStaticTemplateForMoreThan11Tests(template, totalActivitiesLength);
+      this.correctTemplateAfterAdjustment(template, totalActivitiesLength);
+    }
+    const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
+    // Populate site visit details
+    siteVisitDetails.assesor.value = activity.testerName;
+    siteVisitDetails.siteName.value = activity.testStationName;
+    siteVisitDetails.siteNumber.value = activity.testStationPNumber;
+    siteVisitDetails.date.value = moment(activity.startTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+    siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+    siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+    siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
+    // Add testResults and waitActivities in common list and sort them on startTime
+    const activitiesList = this.computeActivitiesList(testResults, waitActivities);
+    for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < activitiesList.length; i++, j++) {
+      const event: IActivitiesList = activitiesList[j];
+      if (event.activityType === ActivityType.TEST) {
+        // Populate activity report
+        const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+        const testResult: any = event.activity;
+        const testType: any = testResult.testTypes;
+        const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
+        let defectsString: string = "";
+        let customDefectsString: string = "";
+        let reasonForAbandoning: string = "";
+        let additionalCommentsAbandon: string = "";
+        let LECNotes: string = "";
+        let defectDetails: string = "";
+        let customDefectDetails: string = "";
+        let prsString: string = "";
 
-              const siteVisitDetails: any = template.reportTemplate.siteVisitDetails;
-              // Populate site visit details
-              siteVisitDetails.assesor.value = activity.testerName;
-              siteVisitDetails.siteName.value = activity.testStationName;
-              siteVisitDetails.siteNumber.value = activity.testStationPNumber;
-              siteVisitDetails.date.value = moment(activity.startTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
-              siteVisitDetails.startTime.value = moment(activity.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-              siteVisitDetails.endTime.value = moment(activity.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-              siteVisitDetails.endDate.value = moment(activity.endTime).tz(TimeZone.LONDON).format("DD/MM/YYYY");
-
-              // Add testResults and waitActivities in common list and sort them on startTime
-              const activitiesList = this.computeActivitiesList(testResults, waitActivities);
-              for (let i = 0, j = 0; i < template.reportTemplate.activityDetails.length && j < activitiesList.length; i++, j++) {
-                const event: IActivitiesList = activitiesList[j];
-                if (event.activityType === ActivityType.TEST) {
-                  // Populate activity report
-                  const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const testResult: any = event.activity;
-                  const testType: any = testResult.testTypes;
-                  const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
-                  let defects: string = "";
-                  let reasonForAbandoning: string = "";
-                  let additionalCommentsAbandon: string = "";
-                  let LECNotes: string = "";
-                  let defectsDetails: string = "";
-                  let prsString: string = "";
-
-                  for (const key of Object.keys(testType.defects)) {
-                    if (testType.defects[key].prs) {
-                      prsString = ", PRS";
-                    } else {
-                      prsString = "";
-                    }
-
-                    defectsDetails =
-                      defectsDetails +
-                      " " +
-                      testType.defects[key].deficiencyRef +
-                      " (" +
-                      testType.defects[key].deficiencyCategory +
-                      prsString +
-                      (testType.defects[key].additionalInformation.notes ? ", " + testType.defects[key].additionalInformation.notes : "") +
-                      (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
-                      ")";
-                  }
-                  if (defectsDetails) {
-                    defects = `Defects: ${defectsDetails};\r\n`;
-                  }
-                  if (testType.reasonForAbandoning) {
-                    reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
-                  }
-                  if (testType.additionalCommentsForAbandon) {
-                    additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
-                  }
-                  if (this.isPassingLECTestType(testType)) {
-                    LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n" + "Fuel type: " + testType.fuelType + "\r\n" + "Emission standards: " + testType.emissionStandard + "\r\n";
-                  }
-                  detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
-                  detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = testType.testCode.toUpperCase();
-                  detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
-                  detailsTemplate.result.value = testType.testResult;
-                  detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                  detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
-                  detailsTemplate.preparerId.value = testResult.preparerId;
-                  detailsTemplate.failureAdvisoryItemsQAIComments.value =
-                    defects +
-                    reasonForAbandoning +
-                    additionalCommentsAbandon +
-                    LECNotes +
-                    "Additional test type notes: " +
-                    additionalTestTypeNotes +
-                    ";\r\n" +
-                    (testType.additionalNotesRecorded ? testType.additionalNotesRecorded + ";" : "");
-                }
-                if (event.activityType === ActivityType.TIME_NOT_TESTING) {
-                  // Populate wait activities in the report
-                  const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const waitActivityResult: any = event.activity;
-                  let waitReasons: string = "";
-                  let additionalNotes: string = "";
-
-                  if (waitActivityResult.waitReason) {
-                    waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
-                  }
-                  if (waitActivityResult.notes) {
-                    additionalNotes = `Additional notes: ${waitActivityResult.notes};\r\n`;
-                  }
-
-                  detailsTemplate.activity.value = waitActivityResult.activityType === "visit" ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
-                  detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.failureAdvisoryItemsQAIComments.value = waitReasons + additionalNotes;
-                }
-              }
-
-              return template.workbook.xlsx.writeBuffer().then((buffer: Excel.Buffer) => {
-                return {
-                  fileName:
-                    "RetrokeyReport_" +
-                    moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY") +
-                    "_" +
-                    moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm") +
-                    "_" +
-                    activity.testStationPNumber +
-                    "_" +
-                    activity.testerName +
-                    ".xlsx",
-                  fileBuffer: buffer,
-                };
-              });
-            });
+        const { defects, customDefects } = testType;
+        if (defects && defects.length) {
+          defects.forEach((defect: any) => {
+            prsString = defect.prs ? ", PRS" : "";
+            defectDetails = defectDetails + "\r\n" + defect.deficiencyRef + " (" + defect.deficiencyCategory + prsString + (defect.additionalInformation.notes ? ", " + defect.additionalInformation.notes : "") + (defect.prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") + ")";
           });
-      });
+          defectsString = `Defects: ${defectDetails};\r\n`;
+        }
+        if (customDefects && customDefects.length) {
+          customDefects.forEach((customDefect: any) => {
+            customDefectDetails = customDefectDetails + "\r\n" + customDefect.referenceNumber + " (" + customDefect.defectName + (customDefect.defectNotes ? ", " + customDefect.defectNotes : "") + ")";
+          });
+          customDefectsString = `Custom Defects: ${customDefectDetails};\r\n`;
+        }
+        if (testType.reasonForAbandoning) {
+          reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+        }
+        if (testType.additionalCommentsForAbandon) {
+          additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+        }
+        if (this.isPassingLECTestType(testType)) {
+          LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n" + "Fuel type: " + testType.fuelType + "\r\n" + "Emission standards: " + testType.emissionStandard + "\r\n";
+        }
+        detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
+        detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+        detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+        detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
+        detailsTemplate.chassisNumber.value = testResult.vin;
+        detailsTemplate.testType.value = testType.testCode.toUpperCase();
+        detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
+        detailsTemplate.result.value = testType.testResult;
+        detailsTemplate.certificateNumber.value = testType.certificateNumber;
+        detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+        detailsTemplate.preparerId.value = testResult.preparerId;
+        detailsTemplate.failureAdvisoryItemsQAIComments.value =
+          defectsString +
+          customDefectsString +
+          reasonForAbandoning +
+          additionalCommentsAbandon +
+          LECNotes + "Additional test type notes: " +
+          additionalTestTypeNotes +
+          ";\r\n" +
+          (testType.additionalNotesRecorded ? testType.additionalNotesRecorded + ";" : "");
+      }
+      if (event.activityType === ActivityType.TIME_NOT_TESTING) {
+        // Populate wait activities in the report
+        const detailsTemplate: any = template.reportTemplate.activityDetails[i];
+        const waitActivityResult: any = event.activity;
+        let waitReasons: string = "";
+        let additionalNotes: string = "";
+        if (waitActivityResult.waitReason) {
+          waitReasons = `Reason for waiting: ${waitActivityResult.waitReason};\r\n`;
+        }
+        if (waitActivityResult.notes) {
+          additionalNotes = `Additional notes: ${waitActivityResult.notes};\r\n`;
+        }
+
+        detailsTemplate.activity.value = waitActivityResult.activityType === "visit" ? ActivityType.TEST : ActivityType.TIME_NOT_TESTING;
+        detailsTemplate.startTime.value = moment(waitActivityResult.startTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+        detailsTemplate.finishTime.value = moment(waitActivityResult.endTime).tz(TimeZone.LONDON).format("HH:mm:ss");
+        detailsTemplate.failureAdvisoryItemsQAIComments.value = waitReasons + additionalNotes;
+      }
+    }
+    const buffer = await template.workbook.xlsx.writeBuffer();
+    return {
+      fileName: "RetrokeyReport_" + moment(activity.startTime).tz(TimeZone.LONDON).format("DD-MM-YYYY") + "_" + moment(activity.startTime).tz(TimeZone.LONDON).format("HHmm") + "_" + activity.testStationPNumber + "_" + activity.testerName + ".xlsx",
+      fileBuffer: buffer,
+    };
   }
 
   /**
