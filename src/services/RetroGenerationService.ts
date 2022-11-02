@@ -376,7 +376,7 @@ class RetroGenerationService {
    * @param testType
    */
   private isPassingLECTestType(testType: any): boolean {
-    const lecTestTypeIds = ["39", "44", "45"];
+    const lecTestTypeIds = ["39", "201", "44", "45"];
     return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
   }
 }
