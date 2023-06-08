@@ -105,8 +105,8 @@ class RetroGenerationService {
                     LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n" + "Fuel type: " + testType.fuelType + "\r\n" + "Emission standards: " + testType.emissionStandard + "\r\n";
                   }
                   detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testResult.testStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testResult.testEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.startTime.value = moment(testType.testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.finishTime.value = moment(testType.testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
                   detailsTemplate.chassisNumber.value = testResult.vin;
                   detailsTemplate.testType.value = testType.testCode.toUpperCase();
