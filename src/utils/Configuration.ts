@@ -1,10 +1,10 @@
 // @ts-ignore
-import * as yml from "node-yaml";
-import { IInvokeConfig, ISPConfig } from "../models";
 import SecretsManager, { GetSecretValueRequest, GetSecretValueResponse } from "aws-sdk/clients/secretsmanager";
 import * as AWSXray from "aws-xray-sdk";
 import { safeLoad } from "js-yaml";
+import * as yml from "node-yaml";
 import { ERRORS } from "../assets/Enum";
+import { IInvokeConfig, ISPConfig } from "../models";
 
 class Configuration {
   private static instance: Configuration;
@@ -93,7 +93,7 @@ class Configuration {
       };
       const resp: GetSecretValueResponse = await this.secretsClient.getSecretValue(req).promise();
       try {
-        secret = await safeLoad(resp.SecretString as string);
+        secret = (await safeLoad(resp.SecretString as string)) as ISPConfig;
       } catch (e) {
         throw new Error("SecretString is empty.");
       }
