@@ -1,9 +1,9 @@
-import { IActivitiesList, IActivity, ITestResults } from "../models";
 import * as Excel from "exceljs";
 import * as path from "path";
-import { TestResultsService } from "./TestResultsService";
-import { ActivitiesService } from "./ActivitiesService";
 import { ActivityType, RetroConstants, STATUSES, TEST_RESULT_STATES, TimeZone, VEHICLE_TYPES } from "../assets/Enum";
+import { IActivitiesList, IActivity, ITestResults } from "../models";
+import { ActivitiesService } from "./ActivitiesService";
+import { TestResultsService } from "./TestResultsService";
 import moment = require("moment-timezone");
 
 class RetroGenerationService {
@@ -272,7 +272,7 @@ class RetroGenerationService {
       // @ts-ignore
       template.company = "Drivers and Vehicles Standards Agency";
       reportSheet.name = "Retrokey report";
-      delete template.lastModifiedBy;
+      delete (template as Partial<Excel.Workbook>).lastModifiedBy;
 
       // Map values
       const RetrokeyReportTemplate: any = {
