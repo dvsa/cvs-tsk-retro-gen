@@ -1,9 +1,15 @@
+const mockProcessRecord = jest.fn();
+
 import { expect } from "chai";
-import { RetroGenerationService } from "../../src/services/RetroGenerationService";
 import { retroGen } from "../../src/functions/retroGen";
+import { RetroGenerationService } from "../../src/services/RetroGenerationService";
 // import mockContext from "aws-lambda-mock-context";
 import sinon from "sinon";
 // import mockConfig from "../util/mockConfig";
+
+jest.mock("../../src/utils/sqsProcess.ts", () => ({
+  processRecord: mockProcessRecord
+}));
 
 const sandbox = sinon.createSandbox();
 
@@ -64,6 +70,7 @@ describe("Retro Gen Function", () => {
 
     it("Should throw an error (generateRetroReport fails)", async () => {
       sandbox.stub(RetroGenerationService.prototype, "generateRetroReport").throws(new Error("Oh no!"));
+      mockProcessRecord.mockReturnValueOnce("All good");
       try {
         await retroGen({ Records: [{ body: true }] });
         expect.fail();
