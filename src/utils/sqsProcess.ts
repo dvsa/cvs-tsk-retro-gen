@@ -5,5 +5,6 @@ export const processRecord = (record: any) => {
   if (recordBody.eventName === "MODIFY" && recordBody.dynamodb && recordBody.dynamodb.NewImage) {
     return DynamoDB.Converter.unmarshall(recordBody.dynamodb.NewImage);
   }
+  console.error(`process return undefined, record is ${recordBody}`);
   return undefined;
 };
