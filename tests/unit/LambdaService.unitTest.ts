@@ -1,5 +1,5 @@
-import { LambdaService } from "../../src/services/LambdaService";
 import { Lambda } from "aws-sdk";
+import { LambdaService } from "../../src/services/LambdaService";
 import mockConfig from "../util/mockConfig";
 
 describe("When LambdaService ", () => {

@@ -1,13 +1,12 @@
-import { ManagedUpload } from "aws-sdk/clients/s3";
-import { RetroGenerationService } from "../services/RetroGenerationService";
-import { ERRORS } from "../assets/Enum";
-import { SharePointAuthenticationService } from "../services/SharePointAuthenticationService";
-import { SharePointService } from "../services/SharePointService";
+import { Lambda } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
-import { TestResultsService } from "../services/TestResultsService";
+import { ERRORS } from "../assets/Enum";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
-import { Lambda } from "aws-sdk";
+import { RetroGenerationService } from "../services/RetroGenerationService";
+import { SharePointAuthenticationService } from "../services/SharePointAuthenticationService";
+import { SharePointService } from "../services/SharePointService";
+import { TestResultsService } from "../services/TestResultsService";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.

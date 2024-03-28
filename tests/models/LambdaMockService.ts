@@ -1,9 +1,11 @@
-import { AWSError, Lambda, Response } from "aws-sdk";
+import { InvokeCommandInput, InvokeCommandOutput } from "@aws-sdk/client-lambda";
+import { ServiceException } from "@smithy/smithy-client";
+import { Response } from "aws-sdk";
 import { PromiseResult } from "aws-sdk/lib/request";
-import { Configuration } from "../../src/utils/Configuration";
-import { IInvokeConfig } from "../../src/models";
 import * as fs from "fs";
 import * as path from "path";
+import { IInvokeConfig } from "../../src/models";
+import { Configuration } from "../../src/utils/Configuration";
 
 interface IMockFunctions {
   functionName: string;
@@ -52,7 +54,7 @@ class LambdaMockService {
    * Invokes a lambda function based on the given parameters
    * @param params - InvocationRequest params
    */
-  public async invoke(params: Lambda.Types.InvocationRequest): Promise<PromiseResult<Lambda.Types.InvocationResponse, AWSError>> {
+  public async invoke(params: InvokeCommandInput): Promise<PromiseResult<InvokeCommandOutput, ServiceException>> {
     const mockFunction: IMockFunctions | undefined = LambdaMockService.responses.find((item: IMockFunctions) => item.functionName === params.FunctionName);
 
     if (!mockFunction) {
@@ -68,7 +70,7 @@ class LambdaMockService {
     }
 
     const payload: any = mockFunction.response;
-    const response = new Response<Lambda.Types.InvocationResponse, AWSError>();
+    const response = new Response<InvokeCommandOutput, ServiceException>();
     Object.assign(response, {
       data: {
         StatusCode: 200,
@@ -87,12 +89,12 @@ class LambdaMockService {
    * Validates the invocation response
    * @param response - the invocation response
    */
-  public validateInvocationResponse(response: Lambda.Types.InvocationResponse): Promise<any> {
-    if (!response.Payload || response.Payload === "" || (response.StatusCode && response.StatusCode >= 400)) {
+  public validateInvocationResponse(response: InvokeCommandOutput): Promise<any> {
+    if (!response.Payload || JSON.stringify(response.Payload) === "" || (response.StatusCode && response.StatusCode >= 400)) {
       throw new Error(`Lambda invocation returned error: ${response.StatusCode} with empty payload.`);
     }
 
-    const payload: any = JSON.parse(response.Payload as string);
+    const payload: any = JSON.parse(JSON.stringify(response.Payload));
 
     if (payload.statusCode >= 400) {
       throw new Error(`Lambda invocation returned error: ${payload.statusCode} ${payload.body}`);
