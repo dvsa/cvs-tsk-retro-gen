@@ -8,7 +8,7 @@ import sinon from "sinon";
 // import mockConfig from "../util/mockConfig";
 
 jest.mock("../../src/utils/sqsProcess.ts", () => ({
-  processRecord: mockProcessRecord
+  processRecord: mockProcessRecord,
 }));
 
 const sandbox = sinon.createSandbox();
