@@ -1,0 +1,27 @@
+{
+   "name": "serverless-dependency-invoke",
+   "version": "0.0.10",
+   "description": "A Serverless plugin that allows you to declare dependency projects from git repositories which can be invoked using aws-sdk.",
+   "main": "index.js",
+   "scripts": {
+     "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/gmlazu/serverless-dependency-invoke"
+   },
+   "bugs": {
+     "url": "https://github.com/gmlazu/serverless-dependency-invoke/issues"
+   },
+   "homepage": "https://github.com/gmlazu/serverless-dependency-invoke",
+   "keywords": [
+     "AWS",
+     "Lambda",
+     "Serverless",
+     "Offline",
+     "Dependency",
+     "Injection"
+   ],
+   "author": "Lazu George Mihai",
+   "license": "MIT"
+ }
