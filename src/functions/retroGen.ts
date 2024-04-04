@@ -1,4 +1,4 @@
-import { LambdaClient } from '@aws-sdk/client-lambda';
+import { LambdaClient } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
 import { ERRORS } from "../assets/Enum";
 import { ActivitiesService } from "../services/ActivitiesService";

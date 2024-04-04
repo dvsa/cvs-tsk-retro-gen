@@ -1,9 +1,9 @@
-import { InvokeCommandInput, InvokeCommandOutput, LambdaClient, UpdateFunctionConfigurationCommand, InvokeCommand } from '@aws-sdk/client-lambda';
+import { InvokeCommandInput, InvokeCommandOutput, LambdaClient, UpdateFunctionConfigurationCommand, InvokeCommand } from "@aws-sdk/client-lambda";
 import { ServiceException } from "@smithy/smithy-client";
 import { IInvokeConfig } from "../models";
 import { Configuration } from "../utils/Configuration";
-import { Endpoint, Provider } from '@aws-sdk/types';
-import { LambdaClientResolvedConfig } from '@aws-sdk/client-lambda';
+import { Endpoint, Provider } from "@aws-sdk/types";
+import { LambdaClientResolvedConfig } from "@aws-sdk/client-lambda";
 /* tslint:disable */
 const AWSXRay = require("aws-xray-sdk");
 
@@ -17,9 +17,9 @@ class LambdaService {
 
   constructor(lambdaClient: LambdaClient) {
     const config: IInvokeConfig = Configuration.getInstance().getInvokeConfig();
-    let lambdaconfig: LambdaClientResolvedConfig = lambdaClient.config;
+    const lambdaconfig: LambdaClientResolvedConfig = lambdaClient.config;
     lambdaconfig.endpoint = config.params.endpoint as unknown as Provider<Endpoint>;
-    let tempLambdaClient = new LambdaClient(lambdaconfig as any)
+    const tempLambdaClient = new LambdaClient(lambdaconfig as any);
     this.lambdaClient = AWSXRay.captureAWSv3Client(tempLambdaClient);
   }
 
