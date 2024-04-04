@@ -16,7 +16,7 @@ class Configuration {
   private constructor(configPath: string, secretPath: string) {
     this.secretPath = secretPath;
     // @ts-ignore
-    this.secretsClient = AWSXray.captureAWSClient(
+    this.secretsClient = AWSXray.captureAWSv3Client(
       new SecretsManager({
         region: "eu-west-1",
       })

@@ -37,7 +37,7 @@ class ActivitiesService {
       return Promise.resolve([]);
     }
 
-    return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<InvokeCommandOutput, ServiceException>) => {
+    return this.lambdaClient.invoke(invokeParams).then((response: InvokeCommandOutput) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const activityResults: any[] = JSON.parse(payload.body); // Response conversion
       console.log(`Wait Activities: ${activityResults.length}`);
