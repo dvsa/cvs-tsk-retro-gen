@@ -54,7 +54,7 @@ class LambdaMockService {
    * Invokes a lambda function based on the given parameters
    * @param params - InvocationRequest params
    */
-  public async invoke(params: InvokeCommandInput): Promise<PromiseResult<InvokeCommandOutput, ServiceException>> {
+  public async invoke(params: InvokeCommandInput): Promise<InvokeCommandOutput> {
     const mockFunction: IMockFunctions | undefined = LambdaMockService.responses.find((item: IMockFunctions) => item.functionName === params.FunctionName);
 
     if (!mockFunction) {
@@ -82,7 +82,7 @@ class LambdaMockService {
       $response: response,
       StatusCode: 200,
       Payload: payload,
-    };
+    } as unknown as InvokeCommandOutput;
   }
 
   /**
