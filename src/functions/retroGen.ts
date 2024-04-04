@@ -1,3 +1,4 @@
+import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
 import { Lambda } from "aws-sdk";
 import { ManagedUpload } from "aws-sdk/clients/s3";
 import * as rp from "request-promise";
@@ -8,7 +9,6 @@ import { RetroGenerationService } from "../services/RetroGenerationService";
 import { SharePointAuthenticationService } from "../services/SharePointAuthenticationService";
 import { SharePointService } from "../services/SharePointService";
 import { TestResultsService } from "../services/TestResultsService";
-import { processRecord } from "../utils/sqsProcess";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -27,7 +27,8 @@ const retroGen = async (event: any): Promise<void | ManagedUpload.SendData[]> =>
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const visit: any = processRecord(record);
+    const recordBody = JSON.parse(JSON.parse(record.body).Message);
+    const visit: any = processRecord(recordBody);
     if (visit) {
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
         const tokenResponse = await sharepointAuthenticationService.getToken();
