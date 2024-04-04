@@ -1,6 +1,7 @@
 import { IInvokeConfig } from "../models";
 import { PromiseResult } from "aws-sdk/lib/request";
-import { AWSError, Lambda } from "aws-sdk";
+import { ServiceException } from "@smithy/smithy-client";
+import { InvokeCommandOutput } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
@@ -36,7 +37,7 @@ class ActivitiesService {
       return Promise.resolve([]);
     }
 
-    return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+    return this.lambdaClient.invoke(invokeParams).then((response: InvokeCommandOutput) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const activityResults: any[] = JSON.parse(payload.body); // Response conversion
       console.log(`Wait Activities: ${activityResults.length}`);
