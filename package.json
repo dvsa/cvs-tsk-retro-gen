@@ -31,6 +31,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@dvsa/cvs-microservice-common": "^0.9.6",
     "aws-sdk": "^2.1383.0",
     "aws-xray-sdk": "^3.3.4",
     "exceljs": "^4.3.0",
