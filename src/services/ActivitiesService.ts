@@ -1,6 +1,4 @@
 import { IInvokeConfig } from "../models";
-import { PromiseResult } from "aws-sdk/lib/request";
-import { ServiceException } from "@smithy/smithy-client";
 import { InvokeCommandOutput } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
