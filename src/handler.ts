@@ -8,5 +8,5 @@ if (isOffline) {
     secretAccessKey: "verySecretKey1",
   };
 }
-export {credentials};
+export { credentials };
 export { retroGen as handler };

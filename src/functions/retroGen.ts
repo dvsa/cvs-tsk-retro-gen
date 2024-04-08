@@ -20,7 +20,7 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EventIsEmpty);
   }
-  const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new LambdaClient({...credentials}))), new ActivitiesService(new LambdaService(new LambdaClient({...credentials}))));
+  const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new LambdaClient({ ...credentials }))), new ActivitiesService(new LambdaService(new LambdaClient({ ...credentials }))));
   const retroUploadPromises: Array<Promise<PutObjectCommandOutput>> = [];
   const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
   const sharePointService = new SharePointService(rp);
