@@ -1,14 +1,16 @@
+import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
 import { ERRORS } from "../assets/Enum";
-import { ActivitiesService } from "../services/ActivitiesService";
-import { LambdaService } from "../services/LambdaService";
 import { RetroGenerationService } from "../services/RetroGenerationService";
 import { SharePointAuthenticationService } from "../services/SharePointAuthenticationService";
 import { SharePointService } from "../services/SharePointService";
 import { TestResultsService } from "../services/TestResultsService";
-import { PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import { ActivitiesService } from "../services/ActivitiesService";
+import { LambdaService } from "../services/LambdaService";
+import { PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import { credentials } from "../handler";
+
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
  * @param event - DynamoDB Stream event
@@ -26,15 +28,18 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const visit: any = JSON.parse(record.body);
-    const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
-      const tokenResponse = await sharepointAuthenticationService.getToken();
-      const accessToken = JSON.parse(tokenResponse).access_token;
-      const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
-      return sharePointResponse;
-    });
+    const recordBody = JSON.parse(JSON.parse(record.body).Message);
+    const visit: any = processRecord(recordBody);
+    if (visit) {
+      const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
+        const tokenResponse = await sharepointAuthenticationService.getToken();
+        const accessToken = JSON.parse(tokenResponse).access_token;
+        const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
+        return sharePointResponse;
+      });
 
-    retroUploadPromises.push(retroUploadPromise);
+      retroUploadPromises.push(retroUploadPromise);
+    }
   });
 
   return Promise.all(retroUploadPromises).catch((error: any) => {
