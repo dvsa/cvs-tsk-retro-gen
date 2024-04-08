@@ -8,7 +8,7 @@ import { SharePointService } from "../services/SharePointService";
 import { TestResultsService } from "../services/TestResultsService";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
-import { PutObjectCommandOutput } from '@aws-sdk/client-s3';
+import { PutObjectCommandOutput } from "@aws-sdk/client-s3";
 import { credentials } from "../handler";
 
 /**
