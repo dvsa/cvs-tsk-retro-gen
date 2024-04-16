@@ -24,11 +24,13 @@ class ActivitiesService {
       FunctionName: config.functions.getActivities.name,
       InvocationType: "RequestResponse",
       LogType: "Tail",
-      Payload:  toUint8Array(JSON.stringify({
-        httpMethod: "GET",
-        path: "/activities/details",
-        queryStringParameters: params,
-      })),
+      Payload: toUint8Array(
+        JSON.stringify({
+          httpMethod: "GET",
+          path: "/activities/details",
+          queryStringParameters: params,
+        })
+      ),
     };
 
     // TODO fail fast if activityType is not 'visit' as per CVSB-19853 - this code will be removed as part of the 'wait time epic'
