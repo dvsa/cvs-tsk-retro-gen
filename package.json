@@ -36,6 +36,7 @@
     "@aws-sdk/lib-storage": "^3.540.0",
     "@aws-sdk/types": "^3.535.0",
     "@dvsa/cvs-microservice-common": "^0.9.6",
+    "@smithy/util-utf8": "^2.3.0",
     "aws-sdk-client-mock": "^4.0.0",
     "aws-xray-sdk": "^3.3.4",
     "exceljs": "^4.3.0",
@@ -44,7 +45,7 @@
     "moment-timezone": "^0.5.27",
     "node-yaml": "^4.0.1",
     "request": "^2.88.2",
-    "request-promise": "^4.2.5",
+    "request-promise": "^0.0.1",
     "serverless-dependency-invoke": "file:./packages/serverless-dependency-invoke"
   },
   "devDependencies": {

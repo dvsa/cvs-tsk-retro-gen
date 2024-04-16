@@ -1,9 +1,6 @@
-import { InvokeCommandInput, InvokeCommandOutput, LambdaClient, UpdateFunctionConfigurationCommand, InvokeCommand } from "@aws-sdk/client-lambda";
-import { ServiceException } from "@smithy/smithy-client";
+import { InvocationRequest, InvocationResponse, InvokeCommandOutput, LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import { IInvokeConfig } from "../models";
 import { Configuration } from "../utils/Configuration";
-import { Endpoint, Provider } from "@aws-sdk/types";
-import { LambdaClientResolvedConfig } from "@aws-sdk/client-lambda";
 /* tslint:disable */
 const AWSXRay = require("aws-xray-sdk");
 
@@ -24,8 +21,9 @@ class LambdaService {
    * Invokes a lambda function based on the given parameters
    * @param params - InvocationRequest params
    */
-  public async invoke(params: InvokeCommandInput): Promise<InvokeCommandOutput> {
+  public async invoke(params: InvocationRequest): Promise<InvocationResponse> {
     const command = new InvokeCommand(params);
+
     return this.lambdaClient.send(command);
   }
 
@@ -45,13 +43,13 @@ class LambdaService {
    * @param response - the invocation response
    */
 
-  public validateInvocationResponse(response: InvokeCommandOutput): Promise<any> {
+  public validateInvocationResponse(response: InvocationResponse): Promise<any> {
     // @ts-ignore
     if (!response.Payload || response.Payload === "" || (response.StatusCode && response.StatusCode >= 400)) {
       throw new Error(`Lambda invocation returned error: ${response.StatusCode} with empty payload.`);
     }
 
-    let payload: any = JSON.parse(JSON.stringify(response.Payload));
+    let payload: any = JSON.parse(Buffer.from(response.Payload).toString());
 
     if (payload.statusCode >= 400 && payload.statusCode !== 404) {
       throw new Error(`Lambda invocation returned error: ${payload.statusCode} ${payload.body}`);

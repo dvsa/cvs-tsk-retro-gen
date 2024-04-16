@@ -1,5 +1,5 @@
 import { IInvokeConfig } from "../models";
-import { InvokeCommandOutput } from "@aws-sdk/client-lambda";
+import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
@@ -29,7 +29,7 @@ class TestResultsService {
         queryStringParameters: params,
       }),
     };
-    return this.lambdaClient.invoke(invokeParams).then((response: InvokeCommandOutput) => {
+    return this.lambdaClient.invoke(invokeParams).then((response: InvocationResponse) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const testResults: any[] = JSON.parse(payload.body); // Response conversion
 

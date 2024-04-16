@@ -2,7 +2,7 @@ import { LambdaService } from "../../src/services/LambdaService";
 import mockConfig from "../util/mockConfig";
 import { LambdaClient, InvokeCommand, InvokeCommandOutput } from "@aws-sdk/client-lambda";
 import { mockClient } from "aws-sdk-client-mock";
-
+import { toUint8Array } from "@smithy/util-utf8";
 describe("When LambdaService ", () => {
   const service = new LambdaService(new LambdaClient({}));
   const mockLambdaClient = mockClient(LambdaClient);
@@ -13,21 +13,7 @@ describe("When LambdaService ", () => {
   });
   describe("gets 404", () => {
     it("should return an empty 200", async () => {
-      mockLambdaClient.on(InvokeCommand).resolves({
-        Payload: { statusCode: 404, body: "No resource match the selected criteria" },
-        StatusCode: 200,
-      } as unknown as InvokeCommandOutput);
-      const response = await service.invoke({
-        FunctionName: "test",
-        InvocationType: "RequestResponse",
-        Payload: JSON.stringify({ key: "test" }),
-      });
-      // if (response.Payload) {
-      // const result = JSON.parse(Buffer.from(response.Payload).toString());
-      // console.log('********* ' + result);
-      // }
-      const payload = await service.validateInvocationResponse(response);
-
+      const payload = await service.validateInvocationResponse({ Payload: toUint8Array('{"statusCode": 404, "body": "No resource match the selected criteria"}'), StatusCode: 200 });
       expect(payload.statusCode).toEqual(200);
       expect(payload.body).toEqual("[]");
     });
@@ -36,7 +22,7 @@ describe("When LambdaService ", () => {
   describe("gets 503", () => {
     it("should throw an error", async () => {
       mockLambdaClient.on(InvokeCommand).resolves({
-        Payload: { statusCode: 503, body: "Service unavailable" },
+        Payload: toUint8Array('{ "statusCode": 503, "body": "Service unavailable" }'),
         StatusCode: 200,
       } as unknown as InvokeCommandOutput);
       try {
@@ -44,7 +30,7 @@ describe("When LambdaService ", () => {
           await service.invoke({
             FunctionName: "test",
             InvocationType: "RequestResponse",
-            Payload: JSON.stringify({ key: "test" }),
+            Payload: toUint8Array('{ "key": "test" }'),
           })
         );
       } catch (e) {
@@ -60,14 +46,14 @@ describe("When LambdaService ", () => {
         it("returns parsed body", async () => {
           const expectedResponse = { statusCode: 200, body: "my body" };
           mockLambdaClient.on(InvokeCommand).resolves({
-            Payload: expectedResponse,
+            Payload: toUint8Array('{ "statusCode": 200, "body": "my body" }'),
             StatusCode: 200,
           } as unknown as InvokeCommandOutput);
           const resp = await service.validateInvocationResponse(
             await service.invoke({
               FunctionName: "test",
               InvocationType: "RequestResponse",
-              Payload: JSON.stringify({ key: "test" }),
+              Payload: toUint8Array('{ "key": "test" }'),
             })
           );
           expect(resp).toEqual(expectedResponse);
@@ -76,9 +62,8 @@ describe("When LambdaService ", () => {
 
       describe("with empty body", () => {
         it("returns parsed body", async () => {
-          const expectedResponse = { statusCode: 200, body: "" };
           mockLambdaClient.on(InvokeCommand).resolves({
-            Payload: expectedResponse,
+            Payload: toUint8Array('{ "statusCode": 200, "body": "" }'),
             StatusCode: 200,
           } as unknown as InvokeCommandOutput);
           expect.assertions(1);
@@ -87,7 +72,7 @@ describe("When LambdaService ", () => {
               await service.invoke({
                 FunctionName: "test",
                 InvocationType: "RequestResponse",
-                Payload: JSON.stringify({ key: "test" }),
+                Payload: toUint8Array('{ "key": "test" }'),
               })
             );
           } catch (e) {
@@ -99,7 +84,7 @@ describe("When LambdaService ", () => {
 
     describe("with body saying 404 response", () => {
       it("returns 200 response with empty array", async () => {
-        const response = { statusCode: 404, body: "my body" };
+        const response = toUint8Array('{ "statusCode": 404, "body": "my body" }');
         const expectedResponse = { statusCode: 200, body: "[]" };
         mockLambdaClient.on(InvokeCommand).resolves({
           Payload: response,
@@ -109,7 +94,7 @@ describe("When LambdaService ", () => {
           await service.invoke({
             FunctionName: "test",
             InvocationType: "RequestResponse",
-            Payload: JSON.stringify({ key: "test" }),
+            Payload: toUint8Array('{ "key": "test" }'),
           })
         );
         expect(output).toEqual(expectedResponse);
@@ -118,7 +103,7 @@ describe("When LambdaService ", () => {
 
     describe("with body saying non-404 error code", () => {
       it("returns error", async () => {
-        const response = { statusCode: 418, body: "I am a teapot" };
+        const response = toUint8Array('{ "statusCode": 418, "body": "I am a teapot" }');
         mockLambdaClient.on(InvokeCommand).resolves({
           Payload: response,
           StatusCode: 200,
@@ -129,7 +114,7 @@ describe("When LambdaService ", () => {
             await service.invoke({
               FunctionName: "test",
               InvocationType: "RequestResponse",
-              Payload: JSON.stringify({ key: "test" }),
+              Payload: toUint8Array('{ "key": "test" }'),
             })
           );
         } catch (e) {
