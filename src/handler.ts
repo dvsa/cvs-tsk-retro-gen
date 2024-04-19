@@ -1,13 +1,12 @@
 import { retroGen } from "./functions/retroGen";
-import { config as AWSConfig } from "aws-sdk";
 
 const isOffline: boolean = !process.env.BRANCH || process.env.BRANCH === "local";
-
+let credentials = {};
 if (isOffline) {
-  AWSConfig.credentials = {
+  credentials = {
     accessKeyId: "accessKey1",
     secretAccessKey: "verySecretKey1",
   };
 }
-
+export { credentials };
 export { retroGen as handler };
