@@ -28,7 +28,7 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const recordBody = JSON.parse(JSON.parse(record.body).Message);
+    const recordBody = JSON.parse(record.body);
     const visit: any = processRecord(recordBody);
     if (visit) {
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
