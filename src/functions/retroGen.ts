@@ -1,4 +1,4 @@
-import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
 import { ERRORS } from "../assets/Enum";
@@ -30,7 +30,7 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const visit = JSON.parse(record.body);
+    const visit: any = unmarshall(record?.dynamodb.NewImage);
     if (visit) {
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
         const tokenResponse = await sharepointAuthenticationService.getToken();
