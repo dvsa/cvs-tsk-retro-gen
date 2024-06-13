@@ -22,7 +22,6 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EventIsEmpty);
   }
-  console.log(`Function triggered with '${JSON.stringify(event)}'.`);
 
   const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new LambdaClient({ ...credentials }))), new ActivitiesService(new LambdaService(new LambdaClient({ ...credentials }))));
   const retroUploadPromises: Array<Promise<PutObjectCommandOutput>> = [];
