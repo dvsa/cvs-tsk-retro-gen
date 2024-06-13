@@ -10,6 +10,7 @@ import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
 import { PutObjectCommandOutput } from "@aws-sdk/client-s3";
 import { credentials } from "../handler";
+import {mock} from "sinon";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -30,8 +31,11 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
 
   event.Records.forEach((record: any) => {
     const recordBody = JSON.parse(record.body);
+    console.log(recordBody);
     const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
+    console.log(visit);
     if (visit) {
+      console.log(visit);
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
         const tokenResponse = await sharepointAuthenticationService.getToken();
         const accessToken = JSON.parse(tokenResponse).access_token;
