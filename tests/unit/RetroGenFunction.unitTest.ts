@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { retroGen } from "../../src/functions/retroGen";
-import { RetroGenerationService } from "../../src/services/RetroGenerationService";
 
 describe("Retro Gen Function", () => {
   beforeAll(() => {

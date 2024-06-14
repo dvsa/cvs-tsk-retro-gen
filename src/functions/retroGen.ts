@@ -10,7 +10,6 @@ import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
 import { PutObjectCommandOutput } from "@aws-sdk/client-s3";
 import { credentials } from "../handler";
-import {mock} from "sinon";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
