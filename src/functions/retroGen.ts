@@ -1,4 +1,4 @@
-import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
 import { ERRORS } from "../assets/Enum";
@@ -22,14 +22,15 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EventIsEmpty);
   }
+
   const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new LambdaClient({ ...credentials }))), new ActivitiesService(new LambdaService(new LambdaClient({ ...credentials }))));
   const retroUploadPromises: Array<Promise<PutObjectCommandOutput>> = [];
   const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
   const sharePointService = new SharePointService(rp);
 
   event.Records.forEach((record: any) => {
-    const recordBody = JSON.parse(JSON.parse(record.body).Message);
-    const visit: any = processRecord(recordBody);
+    const recordBody = JSON.parse(record.body);
+    const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
     if (visit) {
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
         const tokenResponse = await sharepointAuthenticationService.getToken();
