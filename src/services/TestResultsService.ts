@@ -3,6 +3,7 @@ import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
+import {TestResultSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;
@@ -17,7 +18,7 @@ class TestResultsService {
    * Retrieves test results based on the provided parameters
    * @param params - getTestResultsByTesterStaffId query parameters
    */
-  public getTestResults(params: any): Promise<any> {
+  public getTestResults(params: any): Promise<TestResultSchema[]> {
     const config: IInvokeConfig = this.config.getInvokeConfig();
     const invokeParams: any = {
       FunctionName: config.functions.testResults.name,

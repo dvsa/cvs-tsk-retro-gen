@@ -1,10 +1,12 @@
 import * as Excel from "exceljs";
 import * as path from "path";
 import { ActivityType, RetroConstants, STATUSES, TEST_RESULT_STATES, TimeZone, VEHICLE_TYPES } from "../assets/Enum";
-import { IActivitiesList, IActivity, ITestResults } from "../models";
+import { IActivitiesList } from "../models";
 import { ActivitiesService } from "./ActivitiesService";
 import { TestResultsService } from "./TestResultsService";
 import moment = require("moment-timezone");
+import {ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
+import {TestResultSchema, TestTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 class RetroGenerationService {
   private readonly testResultsService: TestResultsService;
@@ -19,7 +21,7 @@ class RetroGenerationService {
    * Generates the Retrokey report for a given activity
    * @param activity - activity for which to generate the report
    */
-  public generateRetroReport(activity: IActivity): Promise<any> {
+  public generateRetroReport(activity: ActivitySchema): Promise<any> {
     return this.testResultsService
       .getTestResults({
         testerStaffId: activity.testerStaffId,
@@ -28,7 +30,7 @@ class RetroGenerationService {
         testStationPNumber: activity.testStationPNumber,
         testStatus: STATUSES.SUBMITTED,
       })
-      .then((testResults: any) => {
+      .then((testResults: TestResultSchema[]) => {
         // Fetch 'wait' activities for this visit activity
         return this.activitiesService
           .getActivities({
@@ -172,12 +174,13 @@ class RetroGenerationService {
    * @param testResultsList: testResults list
    * @param waitActivitiesList: wait activities list
    */
-  public computeActivitiesList(testResultsList: ITestResults[], waitActivitiesList: IActivity[]) {
+  public computeActivitiesList(testResultsList: TestResultSchema[], waitActivitiesList: ActivitySchema[]) {
     const list: IActivitiesList[] = [];
     // Adding Test results to the list
     for (const testResult of testResultsList) {
+      const testResultTestType = testResult.testTypes as unknown as TestTypeSchema;
       const act: IActivitiesList = {
-        startTime: testResult.testTypes.testTypeStartTimestamp,
+        startTime: testResultTestType.testTypeStartTimestamp!,
         activityType: ActivityType.TEST,
         activity: testResult,
       };

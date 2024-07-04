@@ -1,13 +1,14 @@
 import { RetroGenerationService } from "../../src/services/RetroGenerationService";
 import * as Excel from "exceljs";
 import { TestResultsService } from "../../src/services/TestResultsService";
-import { IActivity, ITestResults } from "../../src/models";
 import { Duplex } from "stream";
 import { ActivitiesService } from "../../src/services/ActivitiesService";
 import testResultResponse from "../resources/test-results-200-response.json";
 import hgvTrlResults from "../resources/hgv-trl-test-results.json";
 import activities from "../resources/wait-time-response.json";
 import queueEvent from "../resources/queue-event.json";
+import {ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
+import {TestResultSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
 // import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {
@@ -67,7 +68,7 @@ describe("RetroGenerationService", () => {
   });
 
   context("when generating a report", () => {
-    const activity: IActivity = JSON.parse(queueEvent.Records[0].body);
+    const activity: ActivitySchema = JSON.parse(queueEvent.Records[0].body);
 
     it("should return a valid xlsx file as buffer", () => {
       // TO tests in CI
@@ -113,7 +114,7 @@ describe("RetroGenerationService", () => {
     context("with more than 11 tests", () => {
       it("should extend the template to fit", () => {
         const testResult = JSON.parse(testResultResponse.body)[0];
-        const myTests: ITestResults[] = [];
+        const myTests: TestResultSchema[] = [];
         for (let i = 0; i < 20; i++) {
           myTests.push(testResult);
         }
