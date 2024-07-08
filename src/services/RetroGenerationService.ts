@@ -5,8 +5,9 @@ import { IActivitiesList } from "../models";
 import { ActivitiesService } from "./ActivitiesService";
 import { TestResultsService } from "./TestResultsService";
 import moment = require("moment-timezone");
-import {ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
-import {TestResultSchema, TestTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
+import { TestResultSchema, TestTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ModTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-type";
 
 class RetroGenerationService {
   private readonly testResultsService: TestResultsService;
@@ -40,7 +41,7 @@ class RetroGenerationService {
             testStationPNumber: activity.testStationPNumber,
             activityType: "wait",
           })
-          .then((waitActivities: any[]) => {
+          .then((waitActivities: ActivitySchema[]) => {
             const totalActivitiesLen = testResults.length + waitActivities.length;
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(totalActivitiesLen).then((template: { workbook: Excel.Workbook; reportTemplate: any }) => {
@@ -66,9 +67,9 @@ class RetroGenerationService {
                 if (event.activityType === ActivityType.TEST) {
                   // Populate activity report
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const testResult: any = event.activity;
-                  const testType: any = testResult.testTypes;
-                  const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
+                  const testResult: TestResultSchema = event.activity;
+                  const testType: TestTypeSchema[] = testResult.testTypes;
+                  const additionalTestTypeNotes: string = testType[0].prohibitionIssued ? "Prohibition was issued" : "none";
                   let defects: string = "";
                   let reasonForAbandoning: string = "";
                   let additionalCommentsAbandon: string = "";
@@ -76,8 +77,8 @@ class RetroGenerationService {
                   let defectsDetails: string = "";
                   let prsString: string = "";
 
-                  for (const key of Object.keys(testType.defects)) {
-                    if (testType.defects[key].prs) {
+                  for (const [, defectValue] of Object.entries(testType[0]?.defects || {})) {
+                    if (defectValue.prs) {
                       prsString = ", PRS";
                     } else {
                       prsString = "";
@@ -86,36 +87,36 @@ class RetroGenerationService {
                     defectsDetails =
                       defectsDetails +
                       " " +
-                      testType.defects[key].deficiencyRef +
+                      testType[0].defects[0].deficiencyRef +
                       " (" +
-                      testType.defects[key].deficiencyCategory +
+                      testType[0].defects[0].deficiencyCategory +
                       prsString +
-                      (testType.defects[key].additionalInformation.notes ? ", " + testType.defects[key].additionalInformation.notes : "") +
-                      (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
+                      (testType[0].defects[0].additionalInformation.notes ? ", " + testType[0].defects[0].additionalInformation.notes : "") +
+                      (testType[0].defects[0].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
                       ")";
                   }
                   if (defectsDetails) {
                     defects = `Defects: ${defectsDetails};\r\n`;
                   }
-                  if (testType.reasonForAbandoning) {
-                    reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+                  if (testType[0].reasonForAbandoning) {
+                    reasonForAbandoning = `Reason for abandoning: ${testType[0].reasonForAbandoning};\r\n`;
                   }
-                  if (testType.additionalCommentsForAbandon) {
-                    additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+                  if (testType[0].additionalCommentsForAbandon) {
+                    additionalCommentsAbandon = `Additional comments for abandon: ${testType[0].additionalCommentsForAbandon};\r\n`;
                   }
                   if (this.isPassingLECTestType(testType)) {
-                    LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n" + "Fuel type: " + testType.fuelType + "\r\n" + "Emission standards: " + testType.emissionStandard + "\r\n";
+                    LECNotes = "Modification type: " + (testType[0].modType! as ModTypeSchema).code.toUpperCase() + "\r\n" + "Fuel type: " + testType[0].fuelType + "\r\n" + "Emission standards: " + testType[0].emissionStandard + "\r\n";
                   }
                   detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testType.testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testType.testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.startTime.value = moment(testType[0].testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.finishTime.value = moment(testType[0].testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
                   detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = testType.testCode.toUpperCase();
+                  detailsTemplate.testType.value = (testType[0] as TestTypeSchema).testCode?.toUpperCase();
                   detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
-                  detailsTemplate.result.value = testType.testResult;
-                  detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                  detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+                  detailsTemplate.result.value = testType[0].testResult;
+                  detailsTemplate.certificateNumber.value = testType[0].certificateNumber;
+                  detailsTemplate.expiryDate.value = testType[0].testExpiryDate ? moment(testType[0].testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value =
                     defects +
@@ -125,12 +126,12 @@ class RetroGenerationService {
                     "Additional test type notes: " +
                     additionalTestTypeNotes +
                     ";\r\n" +
-                    (testType.additionalNotesRecorded ? testType.additionalNotesRecorded + ";" : "");
+                    (testType[0].additionalNotesRecorded ? testType[0].additionalNotesRecorded + ";" : "");
                 }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                   // Populate wait activities in the report
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const waitActivityResult: any = event.activity;
+                  const waitActivityResult: ActivitySchema = event.activity;
                   let waitReasons: string = "";
                   let additionalNotes: string = "";
 
@@ -171,16 +172,16 @@ class RetroGenerationService {
   /**
    * Method to collate testResults and waitActivities into a common list
    * and then sort them on startTime to display the activities in a sequence.
-   * @param testResultsList: testResults list
-   * @param waitActivitiesList: wait activities list
+   * @param testResultsList
+   * @param waitActivitiesList
    */
   public computeActivitiesList(testResultsList: TestResultSchema[], waitActivitiesList: ActivitySchema[]) {
     const list: IActivitiesList[] = [];
     // Adding Test results to the list
     for (const testResult of testResultsList) {
-      const testResultTestType = testResult.testTypes as unknown as TestTypeSchema;
+      const testResultTestType = testResult.testTypes as TestTypeSchema[];
       const act: IActivitiesList = {
-        startTime: testResultTestType.testTypeStartTimestamp!,
+        startTime: testResultTestType[0].testTypeStartTimestamp!,
         activityType: ActivityType.TEST,
         activity: testResult,
       };
@@ -196,7 +197,8 @@ class RetroGenerationService {
       list.push(act);
     }
     // Sorting the list by StartTime
-    const sortDateAsc = (date1: any, date2: any) => {
+    const sortDateAsc = (date1: IActivitiesList, date2: IActivitiesList) => {
+      console.log(date1)
       const date = new Date(date1.startTime).toISOString();
       const dateToCompare = new Date(date2.startTime).toISOString();
       if (date > dateToCompare) {

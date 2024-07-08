@@ -5,6 +5,7 @@ import mockConfig from "../util/mockConfig";
 import testResults200 from "../resources/test-results-200-response.json";
 import testResults200empty from "../resources/test-results-200-response-empty-body.json";
 import testResults404 from "../resources/test-results-404-response.json";
+import {TestResultSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 describe("TestResultsService", () => {
   mockConfig();
@@ -20,8 +21,8 @@ describe("TestResultsService", () => {
             };
           });
           const testResultsService: TestResultsService = new TestResultsService(new lambdaMock());
-          return testResultsService.getTestResults({}).then((result: any) => {
-            const expectedResult: any = [
+          return testResultsService.getTestResults({}).then((result: TestResultSchema[]) => {
+            const expectedResult = [
               {
                 testerStaffId: "1",
                 vrm: "JY58FPP",
@@ -29,7 +30,7 @@ describe("TestResultsService", () => {
                 numberOfSeats: 45,
                 testStartTimestamp: "2019-01-14T10:36:33.987Z",
                 testEndTimestamp: "2019-01-14T10:36:33.987Z",
-                testTypes: {
+                testTypes: [{
                   prohibitionIssued: false,
                   testCode: "aas",
                   testNumber: "1",
@@ -79,7 +80,7 @@ describe("TestResultsService", () => {
                   name: "Annual test",
                   certificateLink: "http://dvsagov.co.uk",
                   testResult: "pass",
-                },
+                }],
                 vin: "XMGDE02FS0H012345",
               },
             ];
