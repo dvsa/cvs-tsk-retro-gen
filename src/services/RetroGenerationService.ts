@@ -198,7 +198,7 @@ class RetroGenerationService {
     }
     // Sorting the list by StartTime
     const sortDateAsc = (date1: IActivitiesList, date2: IActivitiesList) => {
-      console.log(date1)
+      console.log(date1);
       const date = new Date(date1.startTime).toISOString();
       const dateToCompare = new Date(date2.startTime).toISOString();
       if (date > dateToCompare) {
