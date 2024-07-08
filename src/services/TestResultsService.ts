@@ -3,7 +3,7 @@ import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
-import {TestResultSchema, TestTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;

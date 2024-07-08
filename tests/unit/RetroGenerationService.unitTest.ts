@@ -7,8 +7,8 @@ import testResultResponse from "../resources/test-results-200-response.json";
 import hgvTrlResults from "../resources/hgv-trl-test-results.json";
 import activities from "../resources/wait-time-response.json";
 import queueEvent from "../resources/queue-event.json";
-import {ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
-import {TestResultSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
+import { TestResultSchema}  from "@dvsa/cvs-type-definitions/types/v1/test-result";
 // import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {

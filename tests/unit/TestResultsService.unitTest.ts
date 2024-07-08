@@ -5,7 +5,7 @@ import mockConfig from "../util/mockConfig";
 import testResults200 from "../resources/test-results-200-response.json";
 import testResults200empty from "../resources/test-results-200-response-empty-body.json";
 import testResults404 from "../resources/test-results-404-response.json";
-import {TestResultSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 describe("TestResultsService", () => {
   mockConfig();

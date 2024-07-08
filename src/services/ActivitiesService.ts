@@ -4,7 +4,7 @@ import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import { toUint8Array } from "@smithy/util-utf8";
 import moment from "moment";
-import {ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 class ActivitiesService {
   private readonly lambdaClient: LambdaService;

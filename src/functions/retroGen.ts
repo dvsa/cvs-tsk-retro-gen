@@ -1,15 +1,15 @@
-import {unmarshall} from "@aws-sdk/util-dynamodb";
-import {LambdaClient} from "@aws-sdk/client-lambda";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { LambdaClient } from "@aws-sdk/client-lambda";
 import * as rp from "request-promise";
-import {ERRORS} from "../assets/Enum";
-import {RetroGenerationService} from "../services/RetroGenerationService";
-import {SharePointAuthenticationService} from "../services/SharePointAuthenticationService";
-import {SharePointService} from "../services/SharePointService";
-import {TestResultsService} from "../services/TestResultsService";
-import {ActivitiesService} from "../services/ActivitiesService";
-import {LambdaService} from "../services/LambdaService";
-import {PutObjectCommandOutput} from "@aws-sdk/client-s3";
-import {credentials} from "../handler";
+import { ERRORS } from "../assets/Enum";
+import { RetroGenerationService } from "../services/RetroGenerationService";
+import { SharePointAuthenticationService } from "../services/SharePointAuthenticationService";
+import { SharePointService } from "../services/SharePointService";
+import { TestResultsService } from "../services/TestResultsService";
+import { ActivitiesService } from "../services/ActivitiesService";
+import { LambdaService } from "../services/LambdaService";
+import { PutObjectCommandOutput } from "@aws-sdk/client-s3";
+import { credentials } from "../handler";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
