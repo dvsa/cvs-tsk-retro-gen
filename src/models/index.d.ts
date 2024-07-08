@@ -1,10 +1,3 @@
-declare enum StationType {
-  ATF = "atf",
-  GVTS = "gvts",
-  HQ = "hq",
-  POTF = "potf",
-}
-
 interface ISPConfig {
   azure_sharepoint_client_id: string;
   azure_sharepoint_client_secret: string;
@@ -25,4 +18,12 @@ interface IInvokeConfig {
   functions: { testResults: { name: string }; techRecords: { name: string; mock: string }; getActivities: { name: string } };
 }
 
-export { ISPConfig, IInvokeConfig, IActivitiesList };
+interface IActivityParam {
+  testerStaffId: string
+  fromStartTime: string,
+  toStartTime?: null | string,
+  testStationPNumber: string,
+  activityType: string
+}
+
+export { ISPConfig, IInvokeConfig, IActivitiesList, IActivityParam};

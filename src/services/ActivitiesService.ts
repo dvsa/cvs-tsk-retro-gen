@@ -1,4 +1,4 @@
-import { IInvokeConfig } from "../models";
+import {IActivityParam, IInvokeConfig} from "../models";
 import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
@@ -19,7 +19,7 @@ class ActivitiesService {
    * Retrieves Activities based on the provided parameters
    * @param params - getActivities query parameters
    */
-  public getActivities(params: any): Promise<ActivitySchema[]> {
+  public getActivities(params: IActivityParam): Promise<ActivitySchema[]> {
     const config: IInvokeConfig = this.config.getInvokeConfig();
     const invokeParams: any = {
       FunctionName: config.functions.getActivities.name,
@@ -45,7 +45,7 @@ class ActivitiesService {
       console.log(`Wait Activities: ${activityResults.length}`);
 
       // Sort results by startTime
-      activityResults.sort((first: any, second: any): number => {
+      activityResults.sort((first: ActivitySchema, second: ActivitySchema): number => {
         if (moment(first.startTime).isBefore(second.startTime)) {
           return -1;
         }
