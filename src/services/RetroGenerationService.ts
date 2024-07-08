@@ -69,7 +69,7 @@ class RetroGenerationService {
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
                   const testResult: TestResultSchema = event.activity;
                   const testTypes: TestTypeSchema[] = testResult.testTypes;
-                  const additionalTestTypeNotes: string = testType[0].prohibitionIssued ? "Prohibition was issued" : "none";
+                  const additionalTestTypeNotes: string = testTypes[0].prohibitionIssued ? "Prohibition was issued" : "none";
                   let defects: string = "";
                   let reasonForAbandoning: string = "";
                   let additionalCommentsAbandon: string = "";
@@ -77,7 +77,7 @@ class RetroGenerationService {
                   let defectsDetails: string = "";
                   let prsString: string = "";
 
-                  for (const [, defectValue] of Object.entries(testType[0]?.defects || {})) {
+                  for (const [, defectValue] of Object.entries(testTypes[0]?.defects || {})) {
                     if (defectValue.prs) {
                       prsString = ", PRS";
                     } else {
@@ -87,36 +87,36 @@ class RetroGenerationService {
                     defectsDetails =
                       defectsDetails +
                       " " +
-                      testType[0].defects[0].deficiencyRef +
+                      defectValue.deficiencyRef +
                       " (" +
-                      testType[0].defects[0].deficiencyCategory +
+                      defectValue.deficiencyCategory +
                       prsString +
-                      (testType[0].defects[0].additionalInformation.notes ? ", " + testType[0].defects[0].additionalInformation.notes : "") +
-                      (testType[0].defects[0].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
+                      (defectValue.additionalInformation.notes ? ", " + defectValue.additionalInformation.notes : "") +
+                      (defectValue.prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
                       ")";
                   }
                   if (defectsDetails) {
                     defects = `Defects: ${defectsDetails};\r\n`;
                   }
-                  if (testType[0].reasonForAbandoning) {
-                    reasonForAbandoning = `Reason for abandoning: ${testType[0].reasonForAbandoning};\r\n`;
+                  if (testTypes[0].reasonForAbandoning) {
+                    reasonForAbandoning = `Reason for abandoning: ${testTypes[0].reasonForAbandoning};\r\n`;
                   }
-                  if (testType[0].additionalCommentsForAbandon) {
-                    additionalCommentsAbandon = `Additional comments for abandon: ${testType[0].additionalCommentsForAbandon};\r\n`;
+                  if (testTypes[0].additionalCommentsForAbandon) {
+                    additionalCommentsAbandon = `Additional comments for abandon: ${testTypes[0].additionalCommentsForAbandon};\r\n`;
                   }
-                  if (this.isPassingLECTestType(testType)) {
-                    LECNotes = "Modification type: " + (testType[0].modType! as ModTypeSchema).code.toUpperCase() + "\r\n" + "Fuel type: " + testType[0].fuelType + "\r\n" + "Emission standards: " + testType[0].emissionStandard + "\r\n";
+                  if (this.isPassingLECTestType(testTypes)) {
+                    LECNotes = "Modification type: " + (testTypes[0].modType! as ModTypeSchema).code.toUpperCase() + "\r\n" + "Fuel type: " + testTypes[0].fuelType + "\r\n" + "Emission standards: " + testTypes[0].emissionStandard + "\r\n";
                   }
                   detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testType[0].testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testType[0].testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.startTime.value = moment(testTypes[0].testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.finishTime.value = moment(testTypes[0].testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
                   detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = (testType[0] as TestTypeSchema).testCode?.toUpperCase();
+                  detailsTemplate.testType.value = (testTypes[0] as TestTypeSchema).testCode?.toUpperCase();
                   detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
-                  detailsTemplate.result.value = testType[0].testResult;
-                  detailsTemplate.certificateNumber.value = testType[0].certificateNumber;
-                  detailsTemplate.expiryDate.value = testType[0].testExpiryDate ? moment(testType[0].testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+                  detailsTemplate.result.value = testTypes[0].testResult;
+                  detailsTemplate.certificateNumber.value = testTypes[0].certificateNumber;
+                  detailsTemplate.expiryDate.value = testTypes[0].testExpiryDate ? moment(testTypes[0].testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value =
                     defects +
@@ -126,7 +126,7 @@ class RetroGenerationService {
                     "Additional test type notes: " +
                     additionalTestTypeNotes +
                     ";\r\n" +
-                    (testType[0].additionalNotesRecorded ? testType[0].additionalNotesRecorded + ";" : "");
+                    (testTypes[0].additionalNotesRecorded ? testTypes[0].additionalNotesRecorded + ";" : "");
                 }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                   // Populate wait activities in the report
