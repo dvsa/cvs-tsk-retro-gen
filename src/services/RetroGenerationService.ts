@@ -105,7 +105,7 @@ class RetroGenerationService {
                   if (testTypes[0].additionalCommentsForAbandon) {
                     additionalCommentsAbandon = `Additional comments for abandon: ${testTypes[0].additionalCommentsForAbandon};\r\n`;
                   }
-                  if (this.isPassingLECTestType(testTypes)) {
+                  if (this.isPassingLECTestType(testTypes[0])) {
                     LECNotes = "Modification type: " + (testTypes[0].modType! as ModTypeSchema).code.toUpperCase() + "\r\n" + "Fuel type: " + testTypes[0].fuelType + "\r\n" + "Emission standards: " + testTypes[0].emissionStandard + "\r\n";
                   }
                   detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
