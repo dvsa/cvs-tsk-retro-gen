@@ -9,7 +9,7 @@ import { ActivitySchema} from "@dvsa/cvs-type-definitions/types/v1/activity";
 import { TestResultSchema, TestTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-result";
 import { ModTypeSchema} from "@dvsa/cvs-type-definitions/types/v1/test-type";
 import { LEC_TEST } from "@dvsa/cvs-microservice-common/classes/testTypes/Constants";
-import {TestTypeHelper} from "@dvsa/cvs-microservice-common/classes/testTypes/testTypeHelper";
+import { TestTypeHelper } from "@dvsa/cvs-microservice-common/classes/testTypes/testTypeHelper";
 
 class RetroGenerationService {
   private readonly testResultsService: TestResultsService;
