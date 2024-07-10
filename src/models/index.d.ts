@@ -19,11 +19,11 @@ interface IInvokeConfig {
 }
 
 interface IActivityParam {
-  testerStaffId: string
-  fromStartTime: string,
-  toStartTime?: null | string,
-  testStationPNumber: string,
-  activityType: string
+  testerStaffId: string;
+  fromStartTime: string;
+  toStartTime?: null | string;
+  testStationPNumber: string;
+  activityType: string;
 }
 
 export { ISPConfig, IInvokeConfig, IActivitiesList, IActivityParam};
