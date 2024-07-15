@@ -1,4 +1,4 @@
-import { InvocationRequest, InvocationResponse, InvokeCommandOutput, LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import { InvocationRequest, InvocationResponse, LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import { IInvokeConfig } from "../models";
 import { Configuration } from "../utils/Configuration";
 /* tslint:disable */

@@ -14,8 +14,6 @@ import { credentials } from "../handler";
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
  * @param event - DynamoDB Stream event
- * @param context - λ Context
- * @param callback - callback function
  */
 const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
@@ -35,8 +33,7 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
       const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
         const tokenResponse = await sharepointAuthenticationService.getToken();
         const accessToken = JSON.parse(tokenResponse).access_token;
-        const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
-        return sharePointResponse;
+        return await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
       });
 
       retroUploadPromises.push(retroUploadPromise);

@@ -1,9 +1,10 @@
-import { IInvokeConfig } from "../models";
+import {IActivityParam, IInvokeConfig} from "../models";
 import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import { toUint8Array } from "@smithy/util-utf8";
 import moment from "moment";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 class ActivitiesService {
   private readonly lambdaClient: LambdaService;
@@ -18,7 +19,7 @@ class ActivitiesService {
    * Retrieves Activities based on the provided parameters
    * @param params - getActivities query parameters
    */
-  public getActivities(params: any): Promise<any> {
+  public getActivities(params: IActivityParam): Promise<ActivitySchema[]> {
     const config: IInvokeConfig = this.config.getInvokeConfig();
     const invokeParams: any = {
       FunctionName: config.functions.getActivities.name,
@@ -40,11 +41,11 @@ class ActivitiesService {
 
     return this.lambdaClient.invoke(invokeParams).then((response: InvocationResponse) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
-      const activityResults: any[] = JSON.parse(payload.body); // Response conversion
+      const activityResults: ActivitySchema[] = JSON.parse(payload.body); // Response conversion
       console.log(`Wait Activities: ${activityResults.length}`);
 
       // Sort results by startTime
-      activityResults.sort((first: any, second: any): number => {
+      activityResults.sort((first: ActivitySchema, second: ActivitySchema): number => {
         if (moment(first.startTime).isBefore(second.startTime)) {
           return -1;
         }
