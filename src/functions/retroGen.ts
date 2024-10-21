@@ -13,7 +13,7 @@ import { TestResultsService } from "../services/TestResultsService";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
- * @param event - DynamoDB Stream event
+ * @param event - SQS event that contains a DynamoDB stream event to parse out
  */
 const retroGen = async (event: any): Promise<SQSBatchResponse> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
