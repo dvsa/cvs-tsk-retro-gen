@@ -26,4 +26,4 @@ interface IActivityParam {
   activityType: string;
 }
 
-export { ISPConfig, IInvokeConfig, IActivitiesList, IActivityParam};
+export { ISPConfig, IInvokeConfig, IActivitiesList, IActivityParam };
