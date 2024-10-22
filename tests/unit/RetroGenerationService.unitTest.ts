@@ -1,14 +1,14 @@
-import { RetroGenerationService } from "../../src/services/RetroGenerationService";
-import * as Excel from "exceljs";
-import { TestResultsService } from "../../src/services/TestResultsService";
-import { Duplex } from "stream";
-import { ActivitiesService } from "../../src/services/ActivitiesService";
-import testResultResponse from "../resources/test-results-200-response.json";
-import hgvTrlResults from "../resources/hgv-trl-test-results.json";
-import activities from "../resources/wait-time-response.json";
-import queueEvent from "../resources/queue-event.json";
 import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import * as Excel from "exceljs";
+import { Duplex } from "stream";
+import { ActivitiesService } from "../../src/services/ActivitiesService";
+import { RetroGenerationService } from "../../src/services/RetroGenerationService";
+import { TestResultsService } from "../../src/services/TestResultsService";
+import hgvTrlResults from "../resources/hgv-trl-test-results.json";
+import queueEvent from "../resources/queue-event.json";
+import testResultResponse from "../resources/test-results-200-response.json";
+import activities from "../resources/wait-time-response.json";
 // import mockConfig from "../util/mockConfig";
 
 describe("RetroGenerationService", () => {
@@ -200,7 +200,7 @@ describe("RetroGenerationService", () => {
         stream.push(null);
 
         const excelFile = await workbook.xlsx.read(stream);
-        const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+        const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1)!;
 
         expect(reportSheet.getCell("H17").value).toEqual(2);
         expect(reportSheet.getCell("H18").value).toEqual(5);
@@ -218,7 +218,7 @@ describe("RetroGenerationService", () => {
       retroGenerationService.fetchRetroTemplate(15).then((template: { workbook: Excel.Workbook; reportTemplate: any }) => {
         retroGenerationService.adjustStaticTemplateForMoreThan11Tests(template, 15);
         retroGenerationService.correctTemplateAfterAdjustment(template, 15);
-        const worksheet = template.workbook.getWorksheet(1);
+        const worksheet = template.workbook.getWorksheet(1)!;
         expect(worksheet.getCell("B28").border).not.toEqual(undefined);
         expect(worksheet.getCell("G31").border).not.toEqual(undefined);
         expect(worksheet.getCell("G13").border.right).not.toEqual(undefined);
