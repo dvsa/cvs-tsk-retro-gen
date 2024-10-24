@@ -222,7 +222,7 @@ class RetroGenerationService {
    * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
    */
   public adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook; reportTemplate: any }, testResultsLength: any) {
-    const worksheet = template.workbook.getWorksheet(1);
+    const worksheet = template.workbook.getWorksheet(1)!;
     const numberOfRowsToBeAdded = testResultsLength - RetroConstants.INITIAL_ACTIVITY_DETAILS_CAPACITY;
     for (let i = RetroConstants.TEMPLATE_LAST_ROW + numberOfRowsToBeAdded; i >= RetroConstants.TEMPLATE_FIRST_ROW_AFTER_ACTIVITY_DETAILS; i--) {
       const currentRow = worksheet.getRow(i);
@@ -249,7 +249,7 @@ class RetroGenerationService {
    * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
    */
   public correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook; reportTemplate: any }, testResultsLength: any) {
-    const worksheet = template.workbook.getWorksheet(1);
+    const worksheet = template.workbook.getWorksheet(1)!;
 
     worksheet.mergeCells(`B${testResultsLength + 19}:C${testResultsLength + 19}`);
     worksheet.mergeCells(`B${testResultsLength + 20}:C${testResultsLength + 20}`);
@@ -271,7 +271,7 @@ class RetroGenerationService {
     const workbook = new Excel.Workbook();
     return workbook.xlsx.readFile(path.resolve(__dirname, "../resources/retro_report_template.xlsx")).then((template: Excel.Workbook) => {
       // Index starts at 1
-      const reportSheet: Excel.Worksheet = template.getWorksheet(1);
+      const reportSheet: Excel.Worksheet = template.getWorksheet(1)!;
 
       // Change file metadata
       template.creator = "Commercial Vehicles Services Beta Team";
