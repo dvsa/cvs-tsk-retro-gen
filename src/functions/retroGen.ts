@@ -26,6 +26,9 @@ const retroGen = async (event: any): Promise<void | PutObjectCommandOutput[]> =>
   const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
   const sharePointService = new SharePointService(rp);
 
+  console.log('This is the event:');
+  console.log(JSON.stringify(event))
+
   event.Records.forEach((record: any) => {
     const recordBody = JSON.parse(record.body);
     const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
