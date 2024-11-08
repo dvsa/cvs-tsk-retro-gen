@@ -1,4 +1,4 @@
-import {IActivityParam, IInvokeConfig} from "../models";
+import { IActivityParam, IInvokeConfig } from "../models";
 import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
