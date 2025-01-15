@@ -1,8 +1,9 @@
-import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
-import { Lambda } from "aws-sdk";
-import { ManagedUpload } from "aws-sdk/clients/s3";
+import { LambdaClient } from "@aws-sdk/client-lambda";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { SQSBatchItemFailure, SQSBatchResponse } from "aws-lambda";
 import * as rp from "request-promise";
 import { ERRORS } from "../assets/Enum";
+import { credentials } from "../handler";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
 import { RetroGenerationService } from "../services/RetroGenerationService";
@@ -12,39 +13,36 @@ import { TestResultsService } from "../services/TestResultsService";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
- * @param event - DynamoDB Stream event
- * @param context - λ Context
- * @param callback - callback function
+ * @param event - SQS event that contains a DynamoDB stream event to parse out
  */
-const retroGen = async (event: any): Promise<void | ManagedUpload.SendData[]> => {
+const retroGen = async (event: any): Promise<SQSBatchResponse> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EventIsEmpty);
   }
-  const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new Lambda())), new ActivitiesService(new LambdaService(new Lambda())));
-  const retroUploadPromises: Array<Promise<ManagedUpload.SendData>> = [];
+
+  const retroService: RetroGenerationService = new RetroGenerationService(new TestResultsService(new LambdaService(new LambdaClient({ ...credentials }))), new ActivitiesService(new LambdaService(new LambdaClient({ ...credentials }))));
   const sharepointAuthenticationService = new SharePointAuthenticationService(rp);
   const sharePointService = new SharePointService(rp);
+  const batchItemFailures: SQSBatchItemFailure[] = [];
 
-  event.Records.forEach((record: any) => {
-    const recordBody = JSON.parse(JSON.parse(record.body).Message);
-    const visit: any = processRecord(recordBody);
-    if (visit) {
-      const retroUploadPromise = retroService.generateRetroReport(visit).then(async (generationServiceResponse: { fileName: string; fileBuffer: Buffer }) => {
+  for (const record of event.Records) {
+    try {
+      const recordBody = JSON.parse(record.body);
+      const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
+      if (visit) {
+        const generationServiceResponse = await retroService.generateRetroReport(visit);
         const tokenResponse = await sharepointAuthenticationService.getToken();
         const accessToken = JSON.parse(tokenResponse).access_token;
-        const sharePointResponse = await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
-        return sharePointResponse;
-      });
-
-      retroUploadPromises.push(retroUploadPromise);
+        await sharePointService.upload(generationServiceResponse.fileName, generationServiceResponse.fileBuffer, accessToken);
+      }
+    } catch (error) {
+      console.error(`record id ${record.messageId}, error: ${error}`);
+      batchItemFailures.push({ itemIdentifier: record.messageId });
     }
-  });
+  }
 
-  return Promise.all(retroUploadPromises).catch((error: any) => {
-    console.error(error);
-    throw error;
-  });
+  return { batchItemFailures };
 };
 
 export { retroGen };
