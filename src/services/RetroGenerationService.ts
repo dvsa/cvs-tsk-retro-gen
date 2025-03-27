@@ -1,7 +1,12 @@
+import { LEC_TEST } from "@dvsa/cvs-microservice-common/classes/testTypes/Constants";
+import { TestTypeHelper } from "@dvsa/cvs-microservice-common/classes/testTypes/testTypeHelper";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
+import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ModTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-type";
 import * as Excel from "exceljs";
 import * as path from "path";
 import { ActivityType, RetroConstants, STATUSES, TEST_RESULT_STATES, TimeZone, VEHICLE_TYPES } from "../assets/Enum";
-import { IActivitiesList, IActivity, ITestResults } from "../models";
+import { IActivitiesList } from "../models";
 import { ActivitiesService } from "./ActivitiesService";
 import { TestResultsService } from "./TestResultsService";
 import moment = require("moment-timezone");
@@ -19,7 +24,7 @@ class RetroGenerationService {
    * Generates the Retrokey report for a given activity
    * @param activity - activity for which to generate the report
    */
-  public generateRetroReport(activity: IActivity): Promise<any> {
+  public generateRetroReport(activity: ActivitySchema): Promise<any> {
     return this.testResultsService
       .getTestResults({
         testerStaffId: activity.testerStaffId,
@@ -28,7 +33,7 @@ class RetroGenerationService {
         testStationPNumber: activity.testStationPNumber,
         testStatus: STATUSES.SUBMITTED,
       })
-      .then((testResults: any) => {
+      .then((testResults: TestResultSchema[]) => {
         // Fetch 'wait' activities for this visit activity
         return this.activitiesService
           .getActivities({
@@ -38,7 +43,7 @@ class RetroGenerationService {
             testStationPNumber: activity.testStationPNumber,
             activityType: "wait",
           })
-          .then((waitActivities: any[]) => {
+          .then((waitActivities: ActivitySchema[]) => {
             const totalActivitiesLen = testResults.length + waitActivities.length;
             // Fetch and populate the Retrokey template
             return this.fetchRetroTemplate(totalActivitiesLen).then((template: { workbook: Excel.Workbook; reportTemplate: any }) => {
@@ -64,9 +69,9 @@ class RetroGenerationService {
                 if (event.activityType === ActivityType.TEST) {
                   // Populate activity report
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const testResult: any = event.activity;
-                  const testType: any = testResult.testTypes;
-                  const additionalTestTypeNotes: string = testType.prohibitionIssued ? "Prohibition was issued" : "none";
+                  const testResult: TestResultSchema = event.activity;
+                  const testTypes: TestTypeSchema[] = testResult.testTypes;
+                  const additionalTestTypeNotes: string = testTypes[0].prohibitionIssued ? "Prohibition was issued" : "none";
                   let defects: string = "";
                   let reasonForAbandoning: string = "";
                   let additionalCommentsAbandon: string = "";
@@ -74,8 +79,8 @@ class RetroGenerationService {
                   let defectsDetails: string = "";
                   let prsString: string = "";
 
-                  for (const key of Object.keys(testType.defects)) {
-                    if (testType.defects[key].prs) {
+                  for (const [, defectValue] of Object.entries(testTypes[0]?.defects || {})) {
+                    if (defectValue.prs) {
                       prsString = ", PRS";
                     } else {
                       prsString = "";
@@ -84,36 +89,36 @@ class RetroGenerationService {
                     defectsDetails =
                       defectsDetails +
                       " " +
-                      testType.defects[key].deficiencyRef +
+                      defectValue.deficiencyRef +
                       " (" +
-                      testType.defects[key].deficiencyCategory +
+                      defectValue.deficiencyCategory +
                       prsString +
-                      (testType.defects[key].additionalInformation.notes ? ", " + testType.defects[key].additionalInformation.notes : "") +
-                      (testType.defects[key].prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
+                      (defectValue.additionalInformation.notes ? ", " + defectValue.additionalInformation.notes : "") +
+                      (defectValue.prohibitionIssued ? ", Prohibition was issued" : ", Prohibition was not issued") +
                       ")";
                   }
                   if (defectsDetails) {
                     defects = `Defects: ${defectsDetails};\r\n`;
                   }
-                  if (testType.reasonForAbandoning) {
-                    reasonForAbandoning = `Reason for abandoning: ${testType.reasonForAbandoning};\r\n`;
+                  if (testTypes[0].reasonForAbandoning) {
+                    reasonForAbandoning = `Reason for abandoning: ${testTypes[0].reasonForAbandoning};\r\n`;
                   }
-                  if (testType.additionalCommentsForAbandon) {
-                    additionalCommentsAbandon = `Additional comments for abandon: ${testType.additionalCommentsForAbandon};\r\n`;
+                  if (testTypes[0].additionalCommentsForAbandon) {
+                    additionalCommentsAbandon = `Additional comments for abandon: ${testTypes[0].additionalCommentsForAbandon};\r\n`;
                   }
-                  if (this.isPassingLECTestType(testType)) {
-                    LECNotes = "Modification type: " + testType.modType.code.toUpperCase() + "\r\n" + "Fuel type: " + testType.fuelType + "\r\n" + "Emission standards: " + testType.emissionStandard + "\r\n";
+                  if (this.isPassingLECTestType(testTypes[0])) {
+                    LECNotes = "Modification type: " + (testTypes[0].modType! as ModTypeSchema).code.toUpperCase() + "\r\n" + "Fuel type: " + testTypes[0].fuelType + "\r\n" + "Emission standards: " + testTypes[0].emissionStandard + "\r\n";
                   }
                   detailsTemplate.activity.value = activity.activityType === "visit" ? ActivityType.TEST : ActivityType.WAIT_TIME;
-                  detailsTemplate.startTime.value = moment(testType.testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
-                  detailsTemplate.finishTime.value = moment(testType.testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.startTime.value = moment(testTypes[0].testTypeStartTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
+                  detailsTemplate.finishTime.value = moment(testTypes[0].testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
                   detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = testType.testCode.toUpperCase();
+                  detailsTemplate.testType.value = (testTypes[0] as TestTypeSchema).testCode?.toUpperCase();
                   detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
-                  detailsTemplate.result.value = testType.testResult;
-                  detailsTemplate.certificateNumber.value = testType.certificateNumber;
-                  detailsTemplate.expiryDate.value = testType.testExpiryDate ? moment(testType.testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
+                  detailsTemplate.result.value = testTypes[0].testResult;
+                  detailsTemplate.certificateNumber.value = testTypes[0].certificateNumber;
+                  detailsTemplate.expiryDate.value = testTypes[0].testExpiryDate ? moment(testTypes[0].testExpiryDate).tz(TimeZone.LONDON).format("DD/MM/YYYY") : "";
                   detailsTemplate.preparerId.value = testResult.preparerId;
                   detailsTemplate.failureAdvisoryItemsQAIComments.value =
                     defects +
@@ -123,12 +128,12 @@ class RetroGenerationService {
                     "Additional test type notes: " +
                     additionalTestTypeNotes +
                     ";\r\n" +
-                    (testType.additionalNotesRecorded ? testType.additionalNotesRecorded + ";" : "");
+                    (testTypes[0].additionalNotesRecorded ? testTypes[0].additionalNotesRecorded + ";" : "");
                 }
                 if (event.activityType === ActivityType.TIME_NOT_TESTING) {
                   // Populate wait activities in the report
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
-                  const waitActivityResult: any = event.activity;
+                  const waitActivityResult: ActivitySchema = event.activity;
                   let waitReasons: string = "";
                   let additionalNotes: string = "";
 
@@ -169,15 +174,16 @@ class RetroGenerationService {
   /**
    * Method to collate testResults and waitActivities into a common list
    * and then sort them on startTime to display the activities in a sequence.
-   * @param testResultsList: testResults list
-   * @param waitActivitiesList: wait activities list
+   * @param testResultsList
+   * @param waitActivitiesList
    */
-  public computeActivitiesList(testResultsList: ITestResults[], waitActivitiesList: IActivity[]) {
+  public computeActivitiesList(testResultsList: TestResultSchema[], waitActivitiesList: ActivitySchema[]) {
     const list: IActivitiesList[] = [];
     // Adding Test results to the list
     for (const testResult of testResultsList) {
+      const testResultTestType = testResult.testTypes as TestTypeSchema[];
       const act: IActivitiesList = {
-        startTime: testResult.testTypes.testTypeStartTimestamp,
+        startTime: testResultTestType[0].testTypeStartTimestamp!,
         activityType: ActivityType.TEST,
         activity: testResult,
       };
@@ -193,7 +199,7 @@ class RetroGenerationService {
       list.push(act);
     }
     // Sorting the list by StartTime
-    const sortDateAsc = (date1: any, date2: any) => {
+    const sortDateAsc = (date1: IActivitiesList, date2: IActivitiesList) => {
       const date = new Date(date1.startTime).toISOString();
       const dateToCompare = new Date(date2.startTime).toISOString();
       if (date > dateToCompare) {
@@ -216,7 +222,7 @@ class RetroGenerationService {
    * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
    */
   public adjustStaticTemplateForMoreThan11Tests(template: { workbook: Excel.Workbook; reportTemplate: any }, testResultsLength: any) {
-    const worksheet = template.workbook.getWorksheet(1);
+    const worksheet = template.workbook.getWorksheet(1)!;
     const numberOfRowsToBeAdded = testResultsLength - RetroConstants.INITIAL_ACTIVITY_DETAILS_CAPACITY;
     for (let i = RetroConstants.TEMPLATE_LAST_ROW + numberOfRowsToBeAdded; i >= RetroConstants.TEMPLATE_FIRST_ROW_AFTER_ACTIVITY_DETAILS; i--) {
       const currentRow = worksheet.getRow(i);
@@ -243,7 +249,7 @@ class RetroGenerationService {
    * @param testResultsLength - number of total tests needed to be accommodated in the activity details section
    */
   public correctTemplateAfterAdjustment(template: { workbook: Excel.Workbook; reportTemplate: any }, testResultsLength: any) {
-    const worksheet = template.workbook.getWorksheet(1);
+    const worksheet = template.workbook.getWorksheet(1)!;
 
     worksheet.mergeCells(`B${testResultsLength + 19}:C${testResultsLength + 19}`);
     worksheet.mergeCells(`B${testResultsLength + 20}:C${testResultsLength + 20}`);
@@ -265,7 +271,7 @@ class RetroGenerationService {
     const workbook = new Excel.Workbook();
     return workbook.xlsx.readFile(path.resolve(__dirname, "../resources/retro_report_template.xlsx")).then((template: Excel.Workbook) => {
       // Index starts at 1
-      const reportSheet: Excel.Worksheet = template.getWorksheet(1);
+      const reportSheet: Excel.Worksheet = template.getWorksheet(1)!;
 
       // Change file metadata
       template.creator = "Commercial Vehicles Services Beta Team";
@@ -376,8 +382,7 @@ class RetroGenerationService {
    * @param testType
    */
   private isPassingLECTestType(testType: any): boolean {
-    const lecTestTypeIds = ["39", "201", "44", "45"];
-    return lecTestTypeIds.includes(testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
+    return TestTypeHelper.validateTestTypeIdInList(LEC_TEST, testType.testTypeId) && testType.testResult === TEST_RESULT_STATES.PASS;
   }
 }
 
