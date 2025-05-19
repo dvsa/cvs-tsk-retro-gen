@@ -1,8 +1,8 @@
 import { LEC_TEST } from "@dvsa/cvs-microservice-common/classes/testTypes/Constants";
 import { TestTypeHelper } from "@dvsa/cvs-microservice-common/classes/testTypes/testTypeHelper";
 import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
-import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
-import { ModTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-type";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ModTypeSchema, TestResultTestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result-test-type";
 import * as Excel from "exceljs";
 import * as path from "path";
 import { ActivityType, RetroConstants, STATUSES, TEST_RESULT_STATES, TimeZone, VEHICLE_TYPES } from "../assets/Enum";
@@ -70,7 +70,7 @@ class RetroGenerationService {
                   // Populate activity report
                   const detailsTemplate: any = template.reportTemplate.activityDetails[i];
                   const testResult: TestResultSchema = event.activity;
-                  const testTypes: TestTypeSchema[] = testResult.testTypes;
+                  const testTypes: TestResultTestTypeSchema[] = testResult.testTypes;
                   const additionalTestTypeNotes: string = testTypes[0].prohibitionIssued ? "Prohibition was issued" : "none";
                   let defects: string = "";
                   let reasonForAbandoning: string = "";
@@ -114,7 +114,7 @@ class RetroGenerationService {
                   detailsTemplate.finishTime.value = moment(testTypes[0].testTypeEndTimestamp).tz(TimeZone.LONDON).format("HH:mm:ss");
                   detailsTemplate.vrm.value = testResult.vehicleType === VEHICLE_TYPES.TRL ? testResult.trailerId : testResult.vrm;
                   detailsTemplate.chassisNumber.value = testResult.vin;
-                  detailsTemplate.testType.value = (testTypes[0] as TestTypeSchema).testCode?.toUpperCase();
+                  detailsTemplate.testType.value = (testTypes[0] as TestResultTestTypeSchema).testCode?.toUpperCase();
                   detailsTemplate.seatsAndAxles.value = testResult.vehicleType === VEHICLE_TYPES.PSV ? testResult.numberOfSeats : testResult.noOfAxles;
                   detailsTemplate.result.value = testTypes[0].testResult;
                   detailsTemplate.certificateNumber.value = testTypes[0].certificateNumber;
@@ -181,7 +181,7 @@ class RetroGenerationService {
     const list: IActivitiesList[] = [];
     // Adding Test results to the list
     for (const testResult of testResultsList) {
-      const testResultTestType = testResult.testTypes as TestTypeSchema[];
+      const testResultTestType = testResult.testTypes as TestResultTestTypeSchema[];
       const act: IActivitiesList = {
         startTime: testResultTestType[0].testTypeStartTimestamp!,
         activityType: ActivityType.TEST,

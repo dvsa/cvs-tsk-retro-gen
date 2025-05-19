@@ -3,7 +3,8 @@ import { InvocationResponse } from "@aws-sdk/client-lambda";
 import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
-import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import {TestResultTestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result-test-type";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;
@@ -64,7 +65,7 @@ class TestResultsService {
         const templateRecord: TestResultSchema = Object.assign({}, testResult);
         Object.assign(templateRecord, {});
 
-        testResult.testTypes.forEach((testType: TestTypeSchema) => {
+        testResult.testTypes.forEach((testType: TestResultTestTypeSchema) => {
           const clonedRecord: TestResultSchema = Object.assign({}, templateRecord); // Create test result from template
           Object.assign(clonedRecord, { testTypes: [testType] }); // Assign it the test type
 
