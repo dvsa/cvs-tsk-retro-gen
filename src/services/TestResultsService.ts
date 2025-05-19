@@ -4,7 +4,7 @@ import { LambdaService } from "./LambdaService";
 import { Configuration } from "../utils/Configuration";
 import moment from "moment";
 import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
-import {TestResultTestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result-test-type";
+import { TestResultTestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result-test-type";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;
